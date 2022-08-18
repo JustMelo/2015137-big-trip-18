@@ -20,10 +20,10 @@ const ctreateOfferTemplate = (routePoint, offersData) => {
         currentOfferPrice = offer[1].price;
         offersContainer += (
           `<li class="event__offer">
-          <span class="event__offer-title">${currentOfferTitle}</span>
-          +€&nbsp;
-          <span class="event__offer-price">${currentOfferPrice}</span>
-        </li>`
+            <span class="event__offer-title">${currentOfferTitle}</span>
+            +€&nbsp;
+            <span class="event__offer-price">${currentOfferPrice}</span>
+          </li>`
         );
       }
     }

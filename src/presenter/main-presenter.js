@@ -21,7 +21,7 @@ export default class BoardPresenter {
     this.offersData = [...this.routeModel.getOffersData()];
 
     render(new FilterView(), filterElement, RenderPosition.AFTERBEGIN);
-    render(new HeaderInfoView(), headerInfoElement, RenderPosition.AFTERBEGIN);
+    render(new HeaderInfoView(this.routePoints, this.destinations), headerInfoElement, RenderPosition.AFTERBEGIN);
     render(this.routeListComponent, sortElement);
     render(new SortView(), sortElement, RenderPosition.AFTERBEGIN);
     render(new RouteEditorView(this.destinations[1]), this.routeListComponent.getElement());
