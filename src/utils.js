@@ -6,6 +6,7 @@ export const changeDateFormatView = (someDate) => dayjs(someDate).format('YYYY-M
 export const changeDateToMonthDays = (someDate) => dayjs(someDate).format('MMM DD');
 export const changeDateToHoursMinutes = (someDate) => dayjs(someDate).format('HH[:]mm');
 export const changeDateToYearsMonthsDays = (someDate) => dayjs(someDate).format('YYYY-MM-DD');
+export const changeDateToFormatEditorView = (someDate) => dayjs(someDate).format('YY/MM/DD HH[:]mm');
 
 export const getDateDiff = (startDate, endDate) => {
   const dateFrom = dayjs(startDate);

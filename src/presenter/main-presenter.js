@@ -24,7 +24,7 @@ export default class BoardPresenter {
     render(new HeaderInfoView(this.routePoints, this.destinations), headerInfoElement, RenderPosition.AFTERBEGIN);
     render(this.routeListComponent, sortElement);
     render(new SortView(), sortElement, RenderPosition.AFTERBEGIN);
-    render(new RouteEditorView(this.destinations[1]), this.routeListComponent.getElement());
+    render(new RouteEditorView(this.destinations[1], this.routePoints[1]), this.routeListComponent.getElement());
 
     for (let i = 0; i < this.routePoints.length; i++) {
       render(new RoutePointView(this.routePoints[i], this.destinations, this.offersData), this.routeListComponent.getElement());

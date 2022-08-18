@@ -4,16 +4,17 @@ import { customAlphabet } from 'nanoid';
 import { getRandomNumberInRange } from '../utils.js';
 
 const OFFERS_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+const TIME_COUNT = 2;
 const DIVIDE_BY = 3;
 
-export const destinationsIds = [];
+const destinationsIds = [];
 
 const nanoid = customAlphabet('1234567890');
 
 let currentPointType;
 
-const generateDateFrom = () => dayjs(new Date()).add(-nanoid(1), 'day').add(-nanoid(2), 'hour').add(-nanoid(2), 'minute').toDate();
-const generateDateTo = () => dayjs(new Date()).add(nanoid(1), 'day').add(nanoid(2), 'hour').add(nanoid(2), 'minute').toDate();
+const generateDateFrom = () => dayjs(new Date()).add(-nanoid(1), 'day').add(-nanoid(TIME_COUNT), 'hour').add(-nanoid(TIME_COUNT), 'minute').toDate();
+const generateDateTo = () => dayjs(new Date()).add(nanoid(1), 'day').add(nanoid(TIME_COUNT), 'hour').add(nanoid(TIME_COUNT), 'minute').toDate();
 
 const generateDestinationId = () => {
   const someDestinationId = nanoid(4);
@@ -56,3 +57,5 @@ export const generateRoutePoint = () => (
     offers: getOffers(currentPointType)
   }
 );
+
+export {destinationsIds};

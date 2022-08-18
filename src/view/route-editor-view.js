@@ -1,7 +1,23 @@
 import {createElement} from '../render.js';
+import { changeDateToFormatEditorView } from '../utils.js';
+import dayjs from 'dayjs';
 
-const createNewRouteEditorTemplate = (destinationData) => {
+const createNewRouteEditorTemplate = (destinationData, routePoint) => {
+  let recivedPoint = routePoint;
+  if (!recivedPoint) {
+    recivedPoint = {
+      basePrice: '',
+      dateFrom: dayjs(new Date()),
+      dateTo: dayjs(new Date()),
+      destination: '',
+      id: '',
+      isFavorite: '',
+      type: 'flight',
+      offers: ''
+    };
+  }
   const {description, name, pictures} = destinationData;
+  const {dateFrom, dateTo, type} = recivedPoint;
   return (
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -9,7 +25,7 @@ const createNewRouteEditorTemplate = (destinationData) => {
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -67,7 +83,7 @@ const createNewRouteEditorTemplate = (destinationData) => {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              Flight
+              ${type}
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
             <datalist id="destination-list-1">
@@ -79,10 +95,10 @@ const createNewRouteEditorTemplate = (destinationData) => {
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="19/03/19 00:00">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${changeDateToFormatEditorView(dateFrom)}">
             —
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="19/03/19 00:00">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${changeDateToFormatEditorView(dateTo)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -168,12 +184,13 @@ const createNewRouteEditorTemplate = (destinationData) => {
   );
 };
 export default class RouteEditorView {
-  constructor(destinationData) {
+  constructor(destinationData, routePoints) {
     this.destinationData = destinationData;
+    this.routePoints = routePoints;
   }
 
   getTemplate() {
-    return createNewRouteEditorTemplate(this.destinationData);
+    return createNewRouteEditorTemplate(this.destinationData, this.routePoints);
   }
 
   getElement() {
