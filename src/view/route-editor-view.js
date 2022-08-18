@@ -2,22 +2,16 @@ import {createElement} from '../render.js';
 import { changeDateToFormatEditorView } from '../utils.js';
 import dayjs from 'dayjs';
 
-const createNewRouteEditorTemplate = (destinationData, routePoint) => {
-  let recivedPoint = routePoint;
-  if (!recivedPoint) {
-    recivedPoint = {
-      basePrice: '',
-      dateFrom: dayjs(new Date()),
-      dateTo: dayjs(new Date()),
-      destination: '',
-      id: '',
-      isFavorite: '',
-      type: 'flight',
-      offers: ''
-    };
-  }
+const createNewRouteEditorTemplate = (destinationData, routePoint = {}) => {
+  const {
+    basePrice = '',
+    dateFrom = dayjs(new Date()),
+    dateTo = dayjs(new Date()),
+    type = 'flight',
+  } = routePoint;
+
   const {description, name, pictures} = destinationData;
-  const {dateFrom, dateTo, type} = recivedPoint;
+
   return (
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -106,7 +100,7 @@ const createNewRouteEditorTemplate = (destinationData, routePoint) => {
               <span class="visually-hidden">Price</span>
               €
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
