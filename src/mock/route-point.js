@@ -4,6 +4,7 @@ import { customAlphabet } from 'nanoid';
 import { getRandomNumberInRange } from '../utils.js';
 
 const OFFERS_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+const DIVIDE_BY = 3;
 
 export const destinationsIds = [];
 
@@ -30,7 +31,7 @@ const generateType = () => {
   return currentPointType;
 };
 
-const getRandomOffersCount = () => Math.ceil(nanoid(1) / 3);
+const getRandomOffersCount = () => Math.ceil(nanoid(1) / DIVIDE_BY);
 
 const getOffers = (currentType) => {
   const offersId = [];
@@ -45,7 +46,7 @@ const getOffers = (currentType) => {
 
 export const generateRoutePoint = () => (
   {
-    basePrice: getRandomNumberInRange(nanoid(1), nanoid(3)),
+    basePrice: getRandomNumberInRange(nanoid(1), nanoid(DIVIDE_BY)),
     dateFrom: generateDateFrom(),
     dateTo: generateDateTo(),
     destination: generateDestinationId(),

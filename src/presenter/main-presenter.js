@@ -1,8 +1,8 @@
-import HeaderInfoView from '../view/header-trip-info-view.js';
+import HeaderInfoView from '../view/header-info-view.js';
 import FilterView from '../view/filter-view.js';
 import SortView from '../view/sort-view.js';
 import RouteListView from '../view/route-points-list-view.js';
-import RouteEditorView from '../view/route-edit-view.js';
+import RouteEditorView from '../view/route-editor-view.js';
 import RoutePointView from '../view/route-point-view.js';
 import {render} from '../render.js';
 import { RenderPosition } from '../render.js';
