@@ -5,22 +5,28 @@ import { changeDateToHoursMinutes } from '../utils.js';
 import { changeDateToYearsMonthsDays } from '../utils.js';
 import { getDateDiff } from '../utils.js';
 
-const ctreateOfferTemplate = (routePoint, destinations, offersData) => {
+const ctreateOfferTemplate = (routePoint, offersData) => {
   let offersContainer = '';
 
   const offerType = offersData.filter((data) => data.type === routePoint.type);
-  const offers = offerType[0].offers;
-  const offersList = [];
-  routePoint.offers.forEach((id) => offersList.push(offers.filter((currentId) => currentId === id)));
-  offerType[0].offers.forEach((element) => {
-    const {title, price} = element;
-    offersContainer += (
-      `<li class="event__offer">
-        <span class="event__offer-title">${title}</span>
-        +€&nbsp;
-        <span class="event__offer-price">${price}</span>
-      </li>`
-    );
+  const offersByType = offerType[0].offers;
+  const offersMap = new Map(Object.entries(offersByType));
+  routePoint.offers.forEach((offerId) => {
+    let currentOfferTitle;
+    let currentOfferPrice;
+    for (const offer of offersMap) {
+      if (offer[1].id === offerId) {
+        currentOfferTitle = offer[1].title;
+        currentOfferPrice = offer[1].price;
+        offersContainer += (
+          `<li class="event__offer">
+          <span class="event__offer-title">${currentOfferTitle}</span>
+          +€&nbsp;
+          <span class="event__offer-price">${currentOfferPrice}</span>
+        </li>`
+        );
+      }
+    }
   });
   return offersContainer;
 };
@@ -49,7 +55,7 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${ctreateOfferTemplate(routePoint, destinations, offersData)}
+          ${ctreateOfferTemplate(routePoint, offersData)}
         </ul>
         <button class="event__favorite-btn event__favorite-btn--active" type="button">
           <span class="visually-hidden">Add to favorite</span>
