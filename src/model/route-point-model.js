@@ -5,11 +5,19 @@ import { getRandomNumberInRange } from '../utils.js';
 import { MAX_POINTS, DESTINATIONS_MID as MIN_POINTS } from '../const.js';
 
 export default class RoutePointModel {
-  routePoints = Array.from({length: getRandomNumberInRange(MIN_POINTS, MAX_POINTS)}, generateRoutePoint);
-  destinationPoints = createAllDestinations();
-  offersData = ALL_OFFERS.slice();
+  #routePoints = Array.from({length: getRandomNumberInRange(MIN_POINTS, MAX_POINTS)}, generateRoutePoint);
+  #destinationPoints = createAllDestinations();
+  #offersData = ALL_OFFERS.slice();
 
-  getRoutePoints = () => this.routePoints;
-  getDestinationPoints = () => this.destinationPoints;
-  getOffersData = () => this.offersData;
+  get routePoints() {
+    return this.#routePoints;
+  }
+
+  get destinationPoints() {
+    return this.#destinationPoints;
+  }
+
+  get offersData() {
+    return this.#offersData;
+  }
 }

@@ -54,25 +54,28 @@ const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
 };
 
 export default class HeaderInfoView {
+  #element = null;
+  #routePoints = null;
+  #destinations = null;
 
   constructor(routePoints, destinations) {
-    this.routePoints = routePoints;
-    this.destinations = destinations;
+    this.#routePoints = routePoints;
+    this.#destinations = destinations;
   }
 
-  getTemplate() {
-    return createNewHeaderInfoTemplate(this.routePoints, this.destinations);
+  get template() {
+    return createNewHeaderInfoTemplate(this.#routePoints, this.#destinations);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

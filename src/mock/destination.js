@@ -7,18 +7,18 @@ import {
   MAX_HOURS as DESTINATION_PICTURE_COUNT,
 } from './const.js';
 
-const generateDestinationPointDescription = () => new Array(DESTINATION_PICTURE_COUNT).fill(DESCRIPTIONS[getRandomNumberInRange(0, DESCRIPTIONS.length - 1)]);
+const getDescription = () => DESCRIPTIONS[getRandomNumberInRange(0, DESCRIPTIONS.length - 1)];
+
+const generateDestinationPointDescription = () => new Array(DESTINATION_PICTURE_COUNT).fill(getDescription());
 
 const generateDestinationPointName = () => DESTINATION_NAMES[getRandomNumberInRange(0, DESTINATION_NAMES.length - 1)];
 
 const getDestinationPicture = () => `http://picsum.photos/300/200?r=${getRandomNumberInRange(0,10)}`;
 
-const getPictureDescription = () => DESCRIPTIONS[getRandomNumberInRange(0, DESCRIPTIONS.length - 1)];
-
 const generateDestinationPictures = () => new Array(DESTINATION_PICTURE_COUNT).fill(null).map(() => (
   {
     src: getDestinationPicture(),
-    description: getPictureDescription()
+    description: getDescription()
   }
 ));
 

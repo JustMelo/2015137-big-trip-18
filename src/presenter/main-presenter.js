@@ -12,22 +12,29 @@ const filterElement = document.querySelector('.trip-controls__filters');
 const sortElement = document.querySelector('.trip-events');
 
 export default class BoardPresenter {
-  routeListComponent = new RouteListView();
+  #routeModel = null;
+  #routePoints = null;
+  #destinations = null;
+  #offersData = null;
+
+  #routeListComponent = new RouteListView();
+  #filterComponent = new FilterView();
+  #sortComponent = new SortView();
 
   init = (routeModel) => {
-    this.routeModel = routeModel;
-    this.routePoints = [...this.routeModel.getRoutePoints()];
-    this.destinations = [...this.routeModel.getDestinationPoints()];
-    this.offersData = [...this.routeModel.getOffersData()];
+    this.#routeModel = routeModel;
+    this.#routePoints = [...this.#routeModel.routePoints];
+    this.#destinations = [...this.#routeModel.destinationPoints];
+    this.#offersData = [...this.#routeModel.offersData];
 
-    render(new FilterView(), filterElement, RenderPosition.AFTERBEGIN);
-    render(new HeaderInfoView(this.routePoints, this.destinations), headerInfoElement, RenderPosition.AFTERBEGIN);
-    render(this.routeListComponent, sortElement);
-    render(new SortView(), sortElement, RenderPosition.AFTERBEGIN);
-    render(new RouteEditorView(this.destinations[1], this.routePoints[1]), this.routeListComponent.getElement());
+    render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
+    render(new HeaderInfoView(this.#routePoints, this.#destinations), headerInfoElement, RenderPosition.AFTERBEGIN);
+    render(this.#routeListComponent, sortElement);
+    render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+    render(new RouteEditorView(this.#destinations[1], this.#routePoints[1]), this.#routeListComponent.element);
 
-    for (let i = 0; i < this.routePoints.length; i++) {
-      render(new RoutePointView(this.routePoints[i], this.destinations, this.offersData), this.routeListComponent.getElement());
+    for (let i = 0; i < this.#routePoints.length; i++) {
+      render(new RoutePointView(this.#routePoints[i], this.#destinations, this.#offersData), this.#routeListComponent.element);
     }
   };
 }

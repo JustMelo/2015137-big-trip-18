@@ -180,25 +180,28 @@ const createNewRouteEditorTemplate = (destinationData, routePoint = {}) => {
 };
 
 export default class RouteEditorView {
+  #element = null;
+  #routePoints = null;
+  #destinations = null;
 
-  constructor(destinationData, routePoints) {
-    this.destinationData = destinationData;
-    this.routePoints = routePoints;
+  constructor(destinations, routePoints) {
+    this.#destinations = destinations;
+    this.#routePoints = routePoints;
   }
 
-  getTemplate() {
-    return createNewRouteEditorTemplate(this.destinationData, this.routePoints);
+  get template() {
+    return createNewRouteEditorTemplate(this.#destinations, this.#routePoints);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

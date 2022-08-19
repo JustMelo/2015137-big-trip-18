@@ -87,26 +87,30 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
 };
 
 export default class RoutePointView {
+  #element = null;
+  #routePoints = null;
+  #destinations = null;
+  #offersData = null;
 
-  constructor(routePoint, destinations, offersData) {
-    this.routePoint = routePoint;
-    this.destinations = destinations;
-    this.offersData = offersData;
+  constructor(routePoints, destinations, offersData) {
+    this.#routePoints = routePoints;
+    this.#destinations = destinations;
+    this.#offersData = offersData;
   }
 
-  getTemplate() {
-    return createNewRoutePointTemplate(this.routePoint, this.destinations, this.offersData);
+  get template() {
+    return createNewRoutePointTemplate(this.#routePoints, this.#destinations, this.#offersData);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
