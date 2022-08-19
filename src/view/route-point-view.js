@@ -1,9 +1,9 @@
 import {createElement} from '../render.js';
-import { changeDateFormatView } from '../utils.js';
+import { changeFormatToFullDateTime } from '../utils.js';
 import { changeDateToMonthDays } from '../utils.js';
 import { changeDateToHoursMinutes } from '../utils.js';
 import { changeDateToYearsMonthsDays } from '../utils.js';
-import { getDateDiff } from '../utils.js';
+import { getDurationFromDates } from '../utils.js';
 
 const ctreateOfferTemplate = (routePoint, offersData) => {
   let offersContainer = '';
@@ -52,11 +52,11 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
         <h3 class="event__title">${type} ${destinationPoint[0].name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${changeDateFormatView(dateFrom)}">${changeDateToHoursMinutes(dateFrom)}</time>
+            <time class="event__start-time" datetime="${changeFormatToFullDateTime(dateFrom)}">${changeDateToHoursMinutes(dateFrom)}</time>
             —
-            <time class="event__end-time" datetime="${changeDateFormatView(dateTo)}">${changeDateToHoursMinutes(dateTo)}</time>
+            <time class="event__end-time" datetime="${changeFormatToFullDateTime(dateTo)}">${changeDateToHoursMinutes(dateTo)}</time>
           </p>
-          <p class="event__duration">${getDateDiff(dateFrom, dateTo)}</p>
+          <p class="event__duration">${getDurationFromDates(dateFrom, dateTo)}</p>
         </div>
         <p class="event__price">
           €&nbsp;<span class="event__price-value">${basePrice}</span>

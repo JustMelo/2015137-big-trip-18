@@ -1,5 +1,6 @@
 import {createElement} from '../render.js';
 import { changeDateToMonthDays } from '../utils.js';
+import { DESTINATIONS_MAX, DESTINATIONS_MID } from '../const.js';
 
 const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
   const points = [...routePoints];
@@ -9,11 +10,11 @@ const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
     const firstPointName = allDestinations[0].name;
     const lastPointName = allDestinations[allDestinations.length - 1].name;
 
-    if (allDestinations.length === 2) {
+    if (allDestinations.length === DESTINATIONS_MID) {
       return (`${firstPointName} - ${lastPointName}`);
     }
 
-    if (allDestinations.length === 3) {
+    if (allDestinations.length === DESTINATIONS_MAX) {
       const middlePointName = allDestinations[1].name;
       return (`${firstPointName} - ${middlePointName} - ${lastPointName}`);
     }

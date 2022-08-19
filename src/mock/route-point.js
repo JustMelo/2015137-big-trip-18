@@ -1,20 +1,23 @@
 import { AllOffers } from './offersData.js';
-import dayjs from 'dayjs';
 import { customAlphabet } from 'nanoid';
 import { getRandomNumberInRange } from '../utils.js';
+import dayjs from 'dayjs';
 
-const OFFERS_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
-const TIME_COUNT = 2;
-const DIVIDE_BY = 3;
-
-const destinationsIds = [];
+import {
+  OFFERS_TYPES,
+  DIVIDE_BY,
+  destinationsIds,
+  MAX_DAYS,
+  MAX_HOURS,
+  MAX_MINUTES
+} from './const.js';
 
 const nanoid = customAlphabet('1234567890');
 
 let currentPointType;
 
-const generateDateFrom = () => dayjs(new Date()).add(-nanoid(1), 'day').add(-nanoid(TIME_COUNT), 'hour').add(-nanoid(TIME_COUNT), 'minute').toDate();
-const generateDateTo = () => dayjs(new Date()).add(nanoid(1), 'day').add(nanoid(TIME_COUNT), 'hour').add(nanoid(TIME_COUNT), 'minute').toDate();
+const generateDateFrom = () => dayjs(new Date()).subtract(getRandomNumberInRange(0, MAX_HOURS), 'hour').subtract(getRandomNumberInRange(0, MAX_MINUTES), 'minute').toDate();
+const generateDateTo = () => dayjs(new Date()).add(getRandomNumberInRange(0, MAX_DAYS), 'day').add(getRandomNumberInRange(0, MAX_MINUTES), 'minute').toDate();
 
 const generateDestinationId = () => {
   const someDestinationId = nanoid(4);
@@ -57,5 +60,3 @@ export const generateRoutePoint = () => (
     offers: getOffers(currentPointType)
   }
 );
-
-export {destinationsIds};

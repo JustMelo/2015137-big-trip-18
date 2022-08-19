@@ -1,5 +1,5 @@
 import {createElement} from '../render.js';
-import { changeDateToFormatEditorView } from '../utils.js';
+import { changeFormatToDateTime } from '../utils.js';
 import dayjs from 'dayjs';
 
 const createNewRouteEditorTemplate = (destinationData, routePoint = {}) => {
@@ -89,10 +89,10 @@ const createNewRouteEditorTemplate = (destinationData, routePoint = {}) => {
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${changeDateToFormatEditorView(dateFrom)}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${changeFormatToDateTime(dateFrom)}">
             —
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${changeDateToFormatEditorView(dateTo)}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${changeFormatToDateTime(dateTo)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
