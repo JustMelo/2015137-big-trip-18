@@ -3,6 +3,7 @@ import { changeFormatToDateTime } from '../utils.js';
 import dayjs from 'dayjs';
 
 const createNewRouteEditorTemplate = (destinationData, routePoint = {}) => {
+
   const {
     basePrice = '',
     dateFrom = dayjs(new Date()),
@@ -177,7 +178,9 @@ const createNewRouteEditorTemplate = (destinationData, routePoint = {}) => {
     </li>`
   );
 };
+
 export default class RouteEditorView {
+
   constructor(destinationData, routePoints) {
     this.destinationData = destinationData;
     this.routePoints = routePoints;

@@ -5,19 +5,23 @@ import { changeDateToHoursMinutes } from '../utils.js';
 import { changeDateToYearsMonthsDays } from '../utils.js';
 import { getDurationFromDates } from '../utils.js';
 
-const ctreateOfferTemplate = (routePoint, offersData) => {
+const createOfferTemplate = (routePoint, offersData) => {
   let offersContainer = '';
 
   const offerType = offersData.filter((data) => data.type === routePoint.type);
   const offersByType = offerType[0].offers;
   const offersMap = new Map(Object.entries(offersByType));
+
   routePoint.offers.forEach((offerId) => {
     let currentOfferTitle;
     let currentOfferPrice;
+
     for (const offer of offersMap) {
+
       if (offer[1].id === offerId) {
         currentOfferTitle = offer[1].title;
         currentOfferPrice = offer[1].price;
+
         offersContainer += (
           `<li class="event__offer">
             <span class="event__offer-title">${currentOfferTitle}</span>
@@ -32,13 +36,16 @@ const ctreateOfferTemplate = (routePoint, offersData) => {
 };
 
 const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
+
   const {basePrice, type, dateFrom, dateTo, isFavorite} = routePoint;
   const destinationPoint = destinations.filter((data) => data.id === routePoint.destination);
 
   const setIsFavoriteButton = () => {
+
     if (isFavorite) {
       return 'event__favorite-btn--active';
     }
+
     return '';
   };
 
@@ -63,7 +70,7 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${ctreateOfferTemplate(routePoint, offersData)}
+          ${createOfferTemplate(routePoint, offersData)}
         </ul>
         <button class="event__favorite-btn ${setIsFavoriteButton()}" type="button">
           <span class="visually-hidden">Add to favorite</span>
@@ -80,6 +87,7 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
 };
 
 export default class RoutePointView {
+
   constructor(routePoint, destinations, offersData) {
     this.routePoint = routePoint;
     this.destinations = destinations;

@@ -1,4 +1,4 @@
-export const AllOffers = [
+export const ALL_OFFERS = [
   {
     type: 'taxi',
     offers: [
