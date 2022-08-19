@@ -29,6 +29,9 @@ const MAX_HOURS = 5;
 const MAX_DAYS = 2;
 const MAX_MINUTES = 15;
 const DIVIDE_BY = 3;
+const POINT_ID_LENGTH = 10;
+const DESTINATION_ID_LENGTH = 4;
+
 
 const destinationsIds = [];
 
@@ -40,5 +43,7 @@ export {
   MAX_HOURS,
   MAX_MINUTES,
   DIVIDE_BY,
+  POINT_ID_LENGTH,
+  DESTINATION_ID_LENGTH,
   destinationsIds
 };

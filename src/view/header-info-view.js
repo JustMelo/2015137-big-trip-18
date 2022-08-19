@@ -25,10 +25,12 @@ const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
   const getStartDate = () => {
     const startDate = changeDateToMonthDays(points[0].dateFrom);
     const endDate = changeDateToMonthDays(points[0].dateTo);
+
     if (startDate.split(' ', 1).toString() === endDate.split(' ', 1).toString()) {
       const dayOfEndDate = endDate.split(' ');
       return `${startDate} - ${dayOfEndDate[1]}`;
     }
+
     return `${startDate} - ${endDate}`;
   };
 
@@ -52,6 +54,7 @@ const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
 };
 
 export default class HeaderInfoView {
+
   constructor(routePoints, destinations) {
     this.routePoints = routePoints;
     this.destinations = destinations;
