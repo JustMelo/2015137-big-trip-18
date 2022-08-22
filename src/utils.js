@@ -30,3 +30,5 @@ export const getDurationFromDates = (startDate, endDate) => {
 
   return dayjs.duration(diffMinutes, 'minute').format('mm[M]');
 };
+
+export const isEscapeKey = (evt) => evt.key === 'Escape' || evt.key === 'Esc';

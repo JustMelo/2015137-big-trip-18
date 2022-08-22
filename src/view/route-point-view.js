@@ -8,9 +8,9 @@ import { getDurationFromDates } from '../utils.js';
 const createOfferTemplate = (routePoint, offersData) => {
   let offersContainer = '';
 
-  const offerType = offersData.filter((data) => data.type === routePoint.type);
-  const offersByType = offerType[0].offers;
-  const offersMap = new Map(Object.entries(offersByType));
+  let offerType = offersData.filter((data) => data.type === routePoint.type);
+  offerType = offerType[0].offers;
+  const offersMap = new Map(Object.entries(offerType));
 
   routePoint.offers.forEach((offerId) => {
     let currentOfferTitle;
