@@ -1,4 +1,4 @@
-import { AllOffers } from './offersData.js';
+import { ALL_OFFERS } from './offersData.js';
 import { customAlphabet } from 'nanoid';
 import { getRandomNumberInRange } from '../utils.js';
 import dayjs from 'dayjs';
@@ -9,7 +9,9 @@ import {
   destinationsIds,
   MAX_DAYS,
   MAX_HOURS,
-  MAX_MINUTES
+  MAX_MINUTES,
+  POINT_ID_LENGTH,
+  DESTINATION_ID_LENGTH
 } from './const.js';
 
 const nanoid = customAlphabet('1234567890');
@@ -20,33 +22,32 @@ const generateDateFrom = () => dayjs(new Date()).subtract(getRandomNumberInRange
 const generateDateTo = () => dayjs(new Date()).add(getRandomNumberInRange(0, MAX_DAYS), 'day').add(getRandomNumberInRange(0, MAX_MINUTES), 'minute').toDate();
 
 const generateDestinationId = () => {
-  const someDestinationId = nanoid(4);
+  const someDestinationId = nanoid(DESTINATION_ID_LENGTH);
   destinationsIds.push(someDestinationId);
   return someDestinationId;
 };
 
-const generateStatus = () => {
-  const randomStatus = (!getRandomNumberInRange(-1, 1));
-  return randomStatus;
-};
+const generateStatus = () => (!getRandomNumberInRange(-1, 1));
 
 const generateType = () => {
   currentPointType = OFFERS_TYPES[getRandomNumberInRange(0, OFFERS_TYPES.length - 1)];
   return currentPointType;
 };
 
-const getRandomOffersCount = () => Math.ceil(nanoid(1) / DIVIDE_BY);
+const getOffersCount = () => Math.ceil(nanoid(1) / DIVIDE_BY);
 
-const getOffers = (currentType) => {
-  const offersId = [];
-  const pointType = AllOffers.filter((offers) => offers.type === currentType);
-  for (let i = 0; i < getRandomOffersCount(); i++) {
-    if (pointType[0].offers[i]) {
-      offersId.push(pointType[0].offers[i].id);
-    }
+const getOffersByType = () => {
+  const pointType = ALL_OFFERS.filter((offers) => offers.type === currentPointType);
+  if (pointType[0].offers) {
+    return getRandomNumberInRange(1, pointType[0].offers.length);
   }
-  return offersId;
 };
+
+const getOffers = () => new Set(
+  new Array(getOffersCount()).fill(null).map( () => (
+    getOffersByType()
+  ))
+);
 
 export const generateRoutePoint = () => (
   {
@@ -54,9 +55,9 @@ export const generateRoutePoint = () => (
     dateFrom: generateDateFrom(),
     dateTo: generateDateTo(),
     destination: generateDestinationId(),
-    id: nanoid(10),
+    id: nanoid(POINT_ID_LENGTH),
     isFavorite: generateStatus(),
     type: generateType(),
-    offers: getOffers(currentPointType)
+    offers: getOffers()
   }
 );

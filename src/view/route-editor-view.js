@@ -2,15 +2,18 @@ import {createElement} from '../render.js';
 import { changeFormatToDateTime } from '../utils.js';
 import dayjs from 'dayjs';
 
-const createNewRouteEditorTemplate = (destinationData, routePoint = {}) => {
+const createNewRouteEditorTemplate = (routePoints = {}, destinations) => {
+
   const {
     basePrice = '',
     dateFrom = dayjs(new Date()),
     dateTo = dayjs(new Date()),
     type = 'flight',
-  } = routePoint;
+  } = routePoints;
 
-  const {description, name, pictures} = destinationData;
+  const currentDestination = destinations.filter((data) => data.id === routePoints.destination);
+
+  const {description, name, pictures} = currentDestination[0];
 
   return (
     `<li class="trip-events__item">
@@ -177,25 +180,32 @@ const createNewRouteEditorTemplate = (destinationData, routePoint = {}) => {
     </li>`
   );
 };
+
 export default class RouteEditorView {
-  constructor(destinationData, routePoints) {
-    this.destinationData = destinationData;
-    this.routePoints = routePoints;
+  #element = null;
+  #routePoints = null;
+  #destinations = null;
+  #offersData = null;
+
+  constructor(routePoints, destinations, offersData) {
+    this.#routePoints = routePoints;
+    this.#destinations = destinations;
+    this.#offersData = offersData;
   }
 
-  getTemplate() {
-    return createNewRouteEditorTemplate(this.destinationData, this.routePoints);
+  get template() {
+    return createNewRouteEditorTemplate(this.#routePoints, this.#destinations, this.#offersData);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
