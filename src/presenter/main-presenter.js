@@ -4,6 +4,7 @@ import SortView from '../view/sort-view.js';
 import RouteListView from '../view/route-points-list-view.js';
 import RouteEditorView from '../view/route-editor-view.js';
 import RoutePointView from '../view/route-point-view.js';
+import NoRoutePointView from '../view/no-route-point-view.js';
 import {render} from '../render.js';
 import { RenderPosition } from '../render.js';
 import { isEscapeKey } from '../utils.js';
@@ -29,12 +30,18 @@ export default class BoardPresenter {
     this.#offersData = [...this.#routeModel.offersData];
 
     render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
-    render(new HeaderInfoView(this.#routePoints, this.#destinations), headerInfoElement, RenderPosition.AFTERBEGIN);
     render(this.#routeListComponent, sortElement);
-    render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
 
-    for (let i = 0; i < this.#routePoints.length; i++) {
-      this.#renderRoutePoint([this.#routePoints[i], this.#destinations, this.#offersData]);
+    if (this.#routePoints.every((point) => point.isArchive)) {
+      render(new NoRoutePointView(), this.#routeListComponent.element);
+
+    } else {
+      render(new HeaderInfoView( this.#routePoints, this.#destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
+      render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+
+      for (let i = 0; i < this.#routePoints.length; i++) {
+        this.#renderRoutePoint([this.#routePoints[i], this.#destinations, this.#offersData]);
+      }
     }
   };
 

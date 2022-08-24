@@ -2,6 +2,7 @@ import { ALL_OFFERS } from './offersData.js';
 import { customAlphabet } from 'nanoid';
 import { getRandomNumberInRange } from '../utils.js';
 import dayjs from 'dayjs';
+import { MAX_POINTS, DESTINATIONS_MID as MIN_POINTS } from '../const.js';
 
 import {
   OFFERS_TYPES,
@@ -30,16 +31,18 @@ const generateDestinationId = () => {
 const generateStatus = () => (!getRandomNumberInRange(-1, 1));
 
 const generateType = () => {
-  currentPointType = OFFERS_TYPES[getRandomNumberInRange(0, OFFERS_TYPES.length - 1)];
+  currentPointType = OFFERS_TYPES[ getRandomNumberInRange(0, OFFERS_TYPES.length - 1) ];
   return currentPointType;
 };
 
 const getOffersCount = () => Math.ceil(nanoid(1) / DIVIDE_BY);
 
 const getOffersByType = () => {
-  const pointType = ALL_OFFERS.filter((offers) => offers.type === currentPointType);
-  if (pointType[0].offers) {
-    return getRandomNumberInRange(1, pointType[0].offers.length);
+  let pointType = ALL_OFFERS.filter((offers) => offers.type === currentPointType);
+  pointType = pointType[0];
+
+  if (pointType.offers) {
+    return getRandomNumberInRange(1, pointType.offers.length);
   }
 };
 
@@ -49,9 +52,9 @@ const getOffers = () => new Set(
   ))
 );
 
-export const generateRoutePoint = () => (
+const generateRoutePoint = () => (
   {
-    basePrice: getRandomNumberInRange(nanoid(1), nanoid(DIVIDE_BY)),
+    basePrice: getRandomNumberInRange( nanoid(1), nanoid(DIVIDE_BY) ),
     dateFrom: generateDateFrom(),
     dateTo: generateDateTo(),
     destination: generateDestinationId(),
@@ -61,3 +64,13 @@ export const generateRoutePoint = () => (
     offers: getOffers()
   }
 );
+
+export const createRoutePoints = () => {
+
+  if (generateStatus()) {
+    return Array.from({length: getRandomNumberInRange(MIN_POINTS, MAX_POINTS)}, generateRoutePoint);
+
+  } else {
+    return [];
+  }
+};
