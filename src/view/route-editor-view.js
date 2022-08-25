@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { changeFormatToDateTime } from '../utils.js';
 import dayjs from 'dayjs';
 
@@ -181,13 +181,15 @@ const createNewRouteEditorTemplate = (routePoints = {}, destinations) => {
   );
 };
 
-export default class RouteEditorView {
-  #element = null;
+export default class RouteEditorView extends AbstractView {
+
   #routePoints = null;
   #destinations = null;
   #offersData = null;
 
   constructor(routePoints, destinations, offersData) {
+    super();
+
     this.#routePoints = routePoints;
     this.#destinations = destinations;
     this.#offersData = offersData;
@@ -197,15 +199,23 @@ export default class RouteEditorView {
     return createNewRouteEditorTemplate(this.#routePoints, this.#destinations, this.#offersData);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setEditSubmitHandler = (cb) => {
+    this._callback.formSubmit = cb;
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+  };
 
-    return this.#element;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  setCancelClickHandler = (cb) => {
+    this._callback.formSubmit = cb;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#editCancelHandler);
+  };
+
+  #editCancelHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  };
 }

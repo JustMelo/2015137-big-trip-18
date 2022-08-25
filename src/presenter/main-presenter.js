@@ -5,7 +5,7 @@ import RouteListView from '../view/route-points-list-view.js';
 import RouteEditorView from '../view/route-editor-view.js';
 import RoutePointView from '../view/route-point-view.js';
 import NoRoutePointView from '../view/no-route-point-view.js';
-import {render} from '../render.js';
+import {render} from '../framework/render.js';
 import { RenderPosition } from '../render.js';
 import { isEscapeKey } from '../utils.js';
 
@@ -23,25 +23,31 @@ export default class BoardPresenter {
   #filterComponent = new FilterView();
   #sortComponent = new SortView();
 
-  init = (routeModel) => {
+  constructor(routeModel) {
     this.#routeModel = routeModel;
+  }
+
+  init = () => {
     this.#routePoints = [...this.#routeModel.routePoints];
     this.#destinations = [...this.#routeModel.destinationPoints];
     this.#offersData = [...this.#routeModel.offersData];
+    this.#renderBoard();
+  };
 
+  #renderBoard = () => {
     render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
     render(this.#routeListComponent, sortElement);
 
     if (this.#routePoints.every((point) => point.isArchive)) {
       render(new NoRoutePointView(), this.#routeListComponent.element);
+      return;
+    }
 
-    } else {
-      render(new HeaderInfoView( this.#routePoints, this.#destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
-      render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+    render(new HeaderInfoView( this.#routePoints, this.#destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
+    render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
 
-      for (let i = 0; i < this.#routePoints.length; i++) {
-        this.#renderRoutePoint([this.#routePoints[i], this.#destinations, this.#offersData]);
-      }
+    for (let i = 0; i < this.#routePoints.length; i++) {
+      this.#renderRoutePoint([this.#routePoints[i], this.#destinations, this.#offersData]);
     }
   };
 
@@ -65,18 +71,17 @@ export default class BoardPresenter {
       }
     };
 
-    routePointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    routePointComponent.setEditClickHandler (() => {
       replacePointToEditor();
       document.addEventListener('keydown', onEscKeyDown);
     });
 
-    pointEditorComponent.element.querySelector('.event__save-btn').addEventListener('submit', (evt) => {
-      evt.preventDefault();
+    pointEditorComponent.setEditSubmitHandler (() => {
       replaceEditorToPoint();
       document.removeEventListener('keydown', onEscKeyDown);
     });
 
-    pointEditorComponent.element.querySelector('.event__reset-btn').addEventListener('click', () => {
+    pointEditorComponent.setCancelClickHandler (() => {
       replaceEditorToPoint();
       document.removeEventListener('keydown', onEscKeyDown);
     });
