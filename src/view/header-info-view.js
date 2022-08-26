@@ -1,8 +1,9 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { changeDateToMonthDays } from '../utils.js';
 import { DESTINATIONS_MAX, DESTINATIONS_MID } from '../const.js';
 
 const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
+
   const points = [...routePoints];
   const allDestinations = [...destinations];
 
@@ -51,14 +52,16 @@ const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
       </p>
     </section>`
   );
+
 };
 
-export default class HeaderInfoView {
-  #element = null;
+export default class HeaderInfoView extends AbstractView {
+
   #routePoints = null;
   #destinations = null;
 
   constructor(routePoints, destinations) {
+    super();
     this.#routePoints = routePoints;
     this.#destinations = destinations;
   }
@@ -67,15 +70,4 @@ export default class HeaderInfoView {
     return createNewHeaderInfoTemplate(this.#routePoints, this.#destinations);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
 }

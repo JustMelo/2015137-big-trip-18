@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { changeFormatToFullDateTime } from '../utils.js';
 import { changeDateToMonthDays } from '../utils.js';
 import { changeDateToHoursMinutes } from '../utils.js';
@@ -86,13 +86,15 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
   );
 };
 
-export default class RoutePointView {
-  #element = null;
+export default class RoutePointView extends AbstractView {
+
   #routePoints = null;
   #destinations = null;
   #offersData = null;
 
   constructor(routePoints, destinations, offersData) {
+    super();
+
     this.#routePoints = routePoints;
     this.#destinations = destinations;
     this.#offersData = offersData;
@@ -102,15 +104,14 @@ export default class RoutePointView {
     return createNewRoutePointTemplate(this.#routePoints, this.#destinations, this.#offersData);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setEditClickHandler = (cb) => {
+    this._callback.click = cb;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
+  };
 
-    return this.#element;
-  }
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
 }
