@@ -35,20 +35,44 @@ export default class BoardPresenter {
   };
 
   #renderBoard = () => {
-    render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
-    render(this.#routeListComponent, sortElement);
+    this.#renderFilter();
+    this.#renderRouteList();
 
     if (this.#routePoints.every((point) => point.isArchive)) {
-      render(new NoRoutePointView(), this.#routeListComponent.element);
+      this.#renderNoRoutes();
       return;
     }
 
-    render(new HeaderInfoView( this.#routePoints, this.#destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
-    render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+    this.#renderRouteList();
+    this.#renderRoutes();
+    this.#renderHeader();
+    this.#renderSort();
+  };
 
-    for (let i = 0; i < this.#routePoints.length; i++) {
-      this.#renderRoutePoint([this.#routePoints[i], this.#destinations, this.#offersData]);
-    }
+  #renderFilter = () => {
+    render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
+  };
+
+  #renderSort = () => {
+    render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+  };
+
+  #renderNoRoutes = () => {
+    render(new NoRoutePointView(), this.#routeListComponent.element);
+  };
+
+  #renderRouteList = () => {
+    render(this.#routeListComponent, sortElement);
+  };
+
+  #renderHeader = () => {
+    render(new HeaderInfoView( this.#routePoints, this.#destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
+  };
+
+  #renderRoutes = () => {
+    this.#routePoints.forEach((element) => {
+      this.#renderRoutePoint([element, this.#destinations, this.#offersData]);
+    });
   };
 
   #renderRoutePoint = (routePointData) => {
