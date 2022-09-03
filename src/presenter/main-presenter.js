@@ -5,12 +5,13 @@ import SortView from '../view/sort-view.js';
 import RouteListView from '../view/route-points-list-view.js';
 import NoRoutePointView from '../view/no-route-point-view.js';
 import {render, RenderPosition} from '../framework/render.js';
+import { updateItem } from '../utils.js';
 
 const headerInfoElement = document.querySelector('.trip-main');
 const filterElement = document.querySelector('.trip-controls__filters');
 const sortElement = document.querySelector('.trip-events');
 
-export default class BoardPresenter {
+export default class MainPresenter {
   #routeModel = null;
   #routePoints = null;
   #destinations = null;
@@ -19,6 +20,8 @@ export default class BoardPresenter {
   #routeListComponent = new RouteListView();
   #filterComponent = new FilterView();
   #sortComponent = new SortView();
+
+  #routePointPresenter = new Map();
 
   constructor(routeModel) {
     this.#routeModel = routeModel;
@@ -46,6 +49,15 @@ export default class BoardPresenter {
     this.#renderSort();
   };
 
+  #handleFavoriteChange = (updatedRoutePoint) => {
+    this.#routePoints = updateItem(this.#routePoints, updatedRoutePoint);
+    this.#routePointPresenter.get(updatedRoutePoint.id).init([updatedRoutePoint, this.#destinations, this.#offersData]);
+  };
+
+  #handleModeChange = () => {
+    this.#routePointPresenter.forEach((element) => element.resetView());
+  };
+
   #renderFilter = () => {
     render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
   };
@@ -67,13 +79,24 @@ export default class BoardPresenter {
   };
 
   #renderRoutes = () => {
-    this.#routePoints.forEach((element) => {
-      this.#renderRoutePoint([element, this.#destinations, this.#offersData]);
+    this.#routePoints.forEach((routePoint) => {
+      this.#renderRoutePoint([routePoint, this.#destinations, this.#offersData]);
     });
   };
 
   #renderRoutePoint = (routePointData) => {
-    const routePointPresenter = new RoutePointPresenter(this.#routeListComponent.element);
+    const routePointPresenter = new RoutePointPresenter(
+      this.#routeListComponent.element,
+      this.#handleFavoriteChange,
+      this.#handleModeChange
+    );
+
     routePointPresenter.init(routePointData);
+    this.#routePointPresenter.set(routePointData[0].id, routePointPresenter);
+  };
+
+  #clearRoutePointList = () => {
+    this.#routePointPresenter.forEach((element) => element.destroy());
+    this.#routePointPresenter.clear();
   };
 }
