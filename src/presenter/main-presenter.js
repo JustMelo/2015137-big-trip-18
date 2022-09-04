@@ -1,19 +1,17 @@
+import RoutePointPresenter from './route-point-presenter.js';
 import HeaderInfoView from '../view/header-info-view.js';
 import FilterView from '../view/filter-view.js';
 import SortView from '../view/sort-view.js';
 import RouteListView from '../view/route-points-list-view.js';
-import RouteEditorView from '../view/route-editor-view.js';
-import RoutePointView from '../view/route-point-view.js';
 import NoRoutePointView from '../view/no-route-point-view.js';
-import {render} from '../framework/render.js';
-import { RenderPosition } from '../render.js';
-import { isEscapeKey } from '../utils.js';
+import {render, RenderPosition} from '../framework/render.js';
+import { updateItem } from '../utils.js';
 
 const headerInfoElement = document.querySelector('.trip-main');
 const filterElement = document.querySelector('.trip-controls__filters');
 const sortElement = document.querySelector('.trip-events');
 
-export default class BoardPresenter {
+export default class MainPresenter {
   #routeModel = null;
   #routePoints = null;
   #destinations = null;
@@ -22,6 +20,8 @@ export default class BoardPresenter {
   #routeListComponent = new RouteListView();
   #filterComponent = new FilterView();
   #sortComponent = new SortView();
+
+  #routePointPresenter = new Map();
 
   constructor(routeModel) {
     this.#routeModel = routeModel;
@@ -35,57 +35,68 @@ export default class BoardPresenter {
   };
 
   #renderBoard = () => {
-    render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
-    render(this.#routeListComponent, sortElement);
+    this.#renderFilter();
+    this.#renderRouteList();
 
     if (this.#routePoints.every((point) => point.isArchive)) {
-      render(new NoRoutePointView(), this.#routeListComponent.element);
+      this.#renderNoRoutes();
       return;
     }
 
-    render(new HeaderInfoView( this.#routePoints, this.#destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
-    render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+    this.#renderRouteList();
+    this.#renderRoutes();
+    this.#renderHeader();
+    this.#renderSort();
+  };
 
-    for (let i = 0; i < this.#routePoints.length; i++) {
-      this.#renderRoutePoint([this.#routePoints[i], this.#destinations, this.#offersData]);
-    }
+  #handleFavoriteChange = (updatedRoutePoint) => {
+    this.#routePoints = updateItem(this.#routePoints, updatedRoutePoint);
+    this.#routePointPresenter.get(updatedRoutePoint.id).init([updatedRoutePoint, this.#destinations, this.#offersData]);
+  };
+
+  #handleModeChange = () => {
+    this.#routePointPresenter.forEach((element) => element.resetView());
+  };
+
+  #renderFilter = () => {
+    render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
+  };
+
+  #renderSort = () => {
+    render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+  };
+
+  #renderNoRoutes = () => {
+    render(new NoRoutePointView(), this.#routeListComponent.element);
+  };
+
+  #renderRouteList = () => {
+    render(this.#routeListComponent, sortElement);
+  };
+
+  #renderHeader = () => {
+    render(new HeaderInfoView( this.#routePoints, this.#destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
+  };
+
+  #renderRoutes = () => {
+    this.#routePoints.forEach((routePoint) => {
+      this.#renderRoutePoint([routePoint, this.#destinations, this.#offersData]);
+    });
   };
 
   #renderRoutePoint = (routePointData) => {
-    const routePointComponent = new RoutePointView(...routePointData);
-    const pointEditorComponent = new RouteEditorView(...routePointData);
+    const routePointPresenter = new RoutePointPresenter(
+      this.#routeListComponent.element,
+      this.#handleFavoriteChange,
+      this.#handleModeChange
+    );
 
-    const replacePointToEditor = () => {
-      this.#routeListComponent.element.replaceChild(pointEditorComponent.element, routePointComponent.element);
-    };
+    routePointPresenter.init(routePointData);
+    this.#routePointPresenter.set(routePointData[0].id, routePointPresenter);
+  };
 
-    const replaceEditorToPoint = () => {
-      this.#routeListComponent.element.replaceChild(routePointComponent.element, pointEditorComponent.element);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (isEscapeKey(evt)) {
-        evt.preventDefault();
-        replaceEditorToPoint();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-    };
-
-    routePointComponent.setEditClickHandler (() => {
-      replacePointToEditor();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
-
-    pointEditorComponent.setEditSubmitHandler (() => {
-      replaceEditorToPoint();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    pointEditorComponent.setCancelClickHandler (() => {
-      replaceEditorToPoint();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    render(routePointComponent, this.#routeListComponent.element);
+  #clearRoutePointList = () => {
+    this.#routePointPresenter.forEach((element) => element.destroy());
+    this.#routePointPresenter.clear();
   };
 }

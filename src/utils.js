@@ -9,6 +9,20 @@ export const getRandomNumberInRange = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
+export const updateItem = (items, update) => {
+  const index = items.findIndex((item) => item.id === update.id);
+
+  if (index === -1) {
+    return items;
+  }
+
+  return [
+    ...items.slice(0, index),
+    update,
+    ...items.slice(index + 1),
+  ];
+};
+
 export const changeFormatToFullDateTime = (someDate) => dayjs(someDate).format('YYYY-MM-DDTHH:mm');
 export const changeDateToMonthDays = (someDate) => dayjs(someDate).format('MMM DD');
 export const changeDateToHoursMinutes = (someDate) => dayjs(someDate).format('HH[:]mm');

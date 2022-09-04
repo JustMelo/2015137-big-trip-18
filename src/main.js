@@ -1,7 +1,7 @@
-import BoardPresenter from './presenter/main-presenter.js';
+import MainPresenter from './presenter/main-presenter.js';
 import RoutePointModel from './model/route-point-model.js';
 
 const routeModel = new RoutePointModel();
-const boardPresenter = new BoardPresenter(routeModel);
+const mainPresenter = new MainPresenter(routeModel);
 
-boardPresenter.init();
+mainPresenter.init();

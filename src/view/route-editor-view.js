@@ -204,18 +204,18 @@ export default class RouteEditorView extends AbstractView {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
   };
 
+  setCancelClickHandler = (cb) => {
+    this._callback.cancelClick = cb;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#editCancelHandler);
+  };
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this._callback.formSubmit();
   };
 
-  setCancelClickHandler = (cb) => {
-    this._callback.formSubmit = cb;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#editCancelHandler);
-  };
-
   #editCancelHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.cancelClick();
   };
 }
