@@ -7,4 +7,11 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
-export {DESTINATIONS_MAX, DESTINATIONS_MID, MAX_POINTS, Mode};
+const FilterType = {
+  EVERYTHING: 'everything',
+  PAST: 'past',
+  FUTURE: 'future',
+};
+
+
+export {DESTINATIONS_MAX, DESTINATIONS_MID, MAX_POINTS, Mode, FilterType};

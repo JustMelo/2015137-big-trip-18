@@ -1,4 +1,4 @@
-import { getRandomNumberInRange } from '../utils.js';
+import { getRandomNumberInRange } from '../utils/common.js';
 
 import {
   DESCRIPTIONS,

@@ -5,7 +5,9 @@ import SortView from '../view/sort-view.js';
 import RouteListView from '../view/route-points-list-view.js';
 import NoRoutePointView from '../view/no-route-point-view.js';
 import {render, RenderPosition} from '../framework/render.js';
-import { updateItem } from '../utils.js';
+import { updateItem } from '../utils/common.js';
+import { FilterType } from '../const.js';
+import { getUpcomingRoutes, getPassedRoutes } from '../utils/filter.js';
 
 const headerInfoElement = document.querySelector('.trip-main');
 const filterElement = document.querySelector('.trip-controls__filters');
@@ -18,10 +20,11 @@ export default class MainPresenter {
   #offersData = null;
 
   #routeListComponent = new RouteListView();
-  #filterComponent = new FilterView();
   #sortComponent = new SortView();
 
   #routePointPresenter = new Map();
+
+  #originRoutePoints = [];
 
   constructor(routeModel) {
     this.#routeModel = routeModel;
@@ -31,6 +34,8 @@ export default class MainPresenter {
     this.#routePoints = [...this.#routeModel.routePoints];
     this.#destinations = [...this.#routeModel.destinationPoints];
     this.#offersData = [...this.#routeModel.offersData];
+
+    this.#originRoutePoints = this.#routePoints;
     this.#renderBoard();
   };
 
@@ -58,8 +63,32 @@ export default class MainPresenter {
     this.#routePointPresenter.forEach((element) => element.resetView());
   };
 
+  #FilterRoutePoints = (filter) => {
+    this.#routePoints = this.#originRoutePoints;
+    switch(filter) {
+      case (FilterType.FUTURE):
+        this.#routePoints = getUpcomingRoutes(this.#routePoints);
+        break;
+      case (FilterType.PAST):
+        this.#routePoints = getPassedRoutes(this.#routePoints);
+        break;
+      default:
+        break;
+    }
+
+    this.#handleFilterChange();
+  };
+
+  #handleFilterChange = () => {
+    this.#clearRoutePoints();
+    this.#renderRoutes();
+  };
+
   #renderFilter = () => {
-    render(this.#filterComponent, filterElement, RenderPosition.AFTERBEGIN);
+    const filterComponent = new FilterView(this.#originRoutePoints);
+
+    render(filterComponent, filterElement, RenderPosition.AFTERBEGIN);
+    filterComponent.setFilterChangeHandler(this.#FilterRoutePoints);
   };
 
   #renderSort = () => {
@@ -95,7 +124,7 @@ export default class MainPresenter {
     this.#routePointPresenter.set(routePointData[0].id, routePointPresenter);
   };
 
-  #clearRoutePointList = () => {
+  #clearRoutePoints = () => {
     this.#routePointPresenter.forEach((element) => element.destroy());
     this.#routePointPresenter.clear();
   };
