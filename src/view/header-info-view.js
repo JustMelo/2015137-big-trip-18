@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { changeDateToMonthDays } from '../utils/common.js';
+import { changeDateToMonthDays } from '../utils/date.js';
 import { DESTINATIONS_MAX, DESTINATIONS_MID } from '../const.js';
 
 const createNewHeaderInfoTemplate = (routePoints ,destinations) => {

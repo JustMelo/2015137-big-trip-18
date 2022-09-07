@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { changeFormatToDateTime } from '../utils/common.js';
+import { changeFormatToDateTime } from '../utils/date.js';
 import dayjs from 'dayjs';
 
 const createNewRouteEditorTemplate = (routePoints = {}, destinations) => {

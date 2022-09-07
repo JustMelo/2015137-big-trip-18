@@ -1,8 +1,8 @@
 import { ALL_OFFERS } from './offersData.js';
 import { customAlphabet } from 'nanoid';
 import { getRandomNumberInRange } from '../utils/common.js';
-import dayjs from 'dayjs';
 import { MAX_POINTS, DESTINATIONS_MID as MIN_POINTS } from '../const.js';
+import dayjs from 'dayjs';
 
 import {
   OFFERS_TYPES,
@@ -19,28 +19,35 @@ const nanoid = customAlphabet('1234567890');
 
 let currentPointType;
 
+let someDate;
+
 const generateStatus = () => (!getRandomNumberInRange(-1, 1));
 
-
 const generateDateFrom = () => {
+  let generatedDate = '';
   if (generateStatus()) {
-    return dayjs(new Date()).
-      subtract(getRandomNumberInRange(0, MAX_HOURS), 'day').
+    generatedDate = dayjs(new Date()).
+      subtract(getRandomNumberInRange(0, MAX_DAYS), 'day').
       subtract(getRandomNumberInRange(0, MAX_HOURS), 'hour').
       subtract(getRandomNumberInRange(0, MAX_MINUTES), 'minute').
       toDate();
+    someDate = generatedDate;
+    return generatedDate;
   }
 
-  return dayjs(new Date()).
+  generatedDate = dayjs(new Date()).
     add(getRandomNumberInRange(0, MAX_DAYS), 'day').
     add(getRandomNumberInRange(0, MAX_HOURS), 'hour').
     add(getRandomNumberInRange(0, MAX_MINUTES), 'minute').
     toDate();
+  someDate = generatedDate;
+  return generatedDate;
 };
 
-const generateDateTo = () => dayjs(
-  new Date()).
-  add(getRandomNumberInRange(0, MAX_HOURS), 'day').
+const generateDateTo = (fromDate) => dayjs(
+  fromDate).
+  add(getRandomNumberInRange(0, MAX_DAYS), 'day').
+  add(getRandomNumberInRange(0, MAX_HOURS), 'hour').
   add(getRandomNumberInRange(0, MAX_MINUTES), 'minute');
 
 const generateDestinationId = () => {
@@ -75,7 +82,7 @@ const generateRoutePoint = () => (
   {
     basePrice: getRandomNumberInRange( nanoid(1), nanoid(DIVIDE_BY) ),
     dateFrom: generateDateFrom(),
-    dateTo: generateDateTo(),
+    dateTo: generateDateTo(someDate),
     destination: generateDestinationId(),
     id: nanoid(POINT_ID_LENGTH),
     isFavorite: generateStatus(),
