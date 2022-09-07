@@ -25,7 +25,7 @@ const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
 
   const getStartDate = () => {
     const startDate = changeDateToMonthDays(points[0].dateFrom);
-    const endDate = changeDateToMonthDays(points[0].dateTo);
+    const endDate = changeDateToMonthDays(points[points.length - 1].dateTo);
 
     if (startDate.split(' ', 1).toString() === endDate.split(' ', 1).toString()) {
       const dayOfEndDate = endDate.split(' ');
