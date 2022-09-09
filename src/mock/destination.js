@@ -1,8 +1,9 @@
-import { getRandomNumberInRange } from '../utils.js';
+import { getRandomNumberInRange } from '../utils/common.js';
 
 import {
   DESCRIPTIONS,
   DESTINATION_NAMES,
+  THEMES,
   destinationsIds,
   MAX_HOURS as DESTINATION_PICTURE_COUNT,
 } from './const.js';
@@ -13,9 +14,9 @@ const generateDestinationPointDescription = () => new Array(DESTINATION_PICTURE_
 
 const generateDestinationPointName = () => DESTINATION_NAMES[getRandomNumberInRange(0, DESTINATION_NAMES.length - 1)];
 
-const getDestinationPicture = () => `http://picsum.photos/300/200?r=${getRandomNumberInRange(0,10)}`;
+const getDestinationPicture = () => `https://source.unsplash.com/random/300x200/?${THEMES[getRandomNumberInRange(0, THEMES.length - 1)]}`;
 
-const generateDestinationPictures = () => new Array(DESTINATION_PICTURE_COUNT).fill(null).map(() => (
+const generateDestinationPictures = () => [...new Array(DESTINATION_PICTURE_COUNT)].map(() => (
   {
     src: getDestinationPicture(),
     description: getDescription()
@@ -24,7 +25,7 @@ const generateDestinationPictures = () => new Array(DESTINATION_PICTURE_COUNT).f
 
 const getDestinationId = () => destinationsIds.pop();
 
-export const createAllDestinations = () => new Array(destinationsIds.length).fill(null).map(() => (
+export const createAllDestinations = () => [...new Array(destinationsIds.length)].map(() => (
   {
     id: getDestinationId(),
     description: generateDestinationPointDescription(),

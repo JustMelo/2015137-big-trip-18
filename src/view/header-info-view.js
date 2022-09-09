@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { changeDateToMonthDays } from '../utils.js';
+import { changeDateToMonthDays } from '../utils/date.js';
 import { DESTINATIONS_MAX, DESTINATIONS_MID } from '../const.js';
 
 const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
@@ -25,7 +25,7 @@ const createNewHeaderInfoTemplate = (routePoints ,destinations) => {
 
   const getStartDate = () => {
     const startDate = changeDateToMonthDays(points[0].dateFrom);
-    const endDate = changeDateToMonthDays(points[0].dateTo);
+    const endDate = changeDateToMonthDays(points[points.length - 1].dateTo);
 
     if (startDate.split(' ', 1).toString() === endDate.split(' ', 1).toString()) {
       const dayOfEndDate = endDate.split(' ');

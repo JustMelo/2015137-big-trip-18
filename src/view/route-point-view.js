@@ -1,9 +1,11 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { changeFormatToFullDateTime } from '../utils.js';
-import { changeDateToMonthDays } from '../utils.js';
-import { changeDateToHoursMinutes } from '../utils.js';
-import { changeDateToYearsMonthsDays } from '../utils.js';
-import { getDurationFromDates } from '../utils.js';
+import {
+  getDurationFromDates,
+  changeDateToYearsMonthsDays,
+  changeDateToHoursMinutes,
+  changeDateToMonthDays,
+  changeFormatToFullDateTime
+} from '../utils/date.js';
 
 const createOfferTemplate = (routePoint, offersData) => {
   let offersContainer = '';

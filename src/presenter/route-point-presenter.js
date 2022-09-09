@@ -1,7 +1,7 @@
 import RouteEditorView from '../view/route-editor-view.js';
 import RoutePointView from '../view/route-point-view.js';
 import { render, replace, remove } from '../framework/render.js';
-import { isEscapeKey } from '../utils.js';
+import { isEscapeKey } from '../utils/common.js';
 import { Mode } from '../const.js';
 
 export default class RoutePointPresenter {

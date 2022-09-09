@@ -10,6 +10,16 @@ const DESCRIPTIONS = [
   'In rutrum ac purus sit amet tempus.'
 ];
 
+const THEMES = [
+  'nature',
+  'city',
+  'travel',
+  'architecture',
+  'night',
+  'animals',
+  'arts-culture'
+];
+
 const DESTINATION_NAMES = [
   'Wraudence',
   'Vleadtol',
@@ -25,8 +35,8 @@ const DESTINATION_NAMES = [
 
 const OFFERS_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
-const MAX_HOURS = 5;
-const MAX_DAYS = 2;
+const MAX_HOURS = 12;
+const MAX_DAYS = 7;
 const MAX_MINUTES = 15;
 const DIVIDE_BY = 3;
 const POINT_ID_LENGTH = 10;
@@ -45,5 +55,6 @@ export {
   DIVIDE_BY,
   POINT_ID_LENGTH,
   DESTINATION_ID_LENGTH,
+  THEMES,
   destinationsIds
 };
