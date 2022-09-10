@@ -1,18 +1,19 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { getUpcomingRoutes, getPassedRoutes } from '../utils/filter.js';
+import { DISABLED_ELEMENT } from '../const.js';
 
 const createNewFiltersElementTemplate = (routePoints) => {
 
   const setFutureFilter = () => {
     if (getUpcomingRoutes(routePoints).length === 0) {
-      return 'disabled';
+      return DISABLED_ELEMENT;
     }
     return '';
   };
 
   const setPastFilter = () => {
     if (getPassedRoutes(routePoints).length === 0) {
-      return 'disabled';
+      return DISABLED_ELEMENT;
     }
     return '';
   };

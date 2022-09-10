@@ -19,19 +19,21 @@ const nanoid = customAlphabet('1234567890');
 
 let currentPointType;
 
-let someDate;
+let startDate;
 
 const generateStatus = () => (!getRandomNumberInRange(-1, 1));
 
 const generateDateFrom = () => {
   let generatedDate = '';
+
   if (generateStatus()) {
     generatedDate = dayjs(new Date()).
       subtract(getRandomNumberInRange(0, MAX_DAYS), 'day').
       subtract(getRandomNumberInRange(0, MAX_HOURS), 'hour').
       subtract(getRandomNumberInRange(0, MAX_MINUTES), 'minute').
       toDate();
-    someDate = generatedDate;
+
+    startDate = generatedDate;
     return generatedDate;
   }
 
@@ -40,12 +42,11 @@ const generateDateFrom = () => {
     add(getRandomNumberInRange(0, MAX_HOURS), 'hour').
     add(getRandomNumberInRange(0, MAX_MINUTES), 'minute').
     toDate();
-  someDate = generatedDate;
+  startDate = generatedDate;
   return generatedDate;
 };
 
-const generateDateTo = (fromDate) => dayjs(
-  fromDate).
+const generateDateTo = (fromDate) => dayjs(fromDate).
   add(getRandomNumberInRange(0, MAX_DAYS), 'day').
   add(getRandomNumberInRange(0, MAX_HOURS), 'hour').
   add(getRandomNumberInRange(0, MAX_MINUTES), 'minute');
@@ -73,7 +74,7 @@ const getOffersByType = () => {
 };
 
 const getOffers = () => new Set(
-  new Array(getOffersCount()).fill(null).map( () => (
+  [...new Array(getOffersCount())].map( () => (
     getOffersByType()
   ))
 );
@@ -82,7 +83,7 @@ const generateRoutePoint = () => (
   {
     basePrice: getRandomNumberInRange( nanoid(1), nanoid(DIVIDE_BY) ),
     dateFrom: generateDateFrom(),
-    dateTo: generateDateTo(someDate),
+    dateTo: generateDateTo(startDate),
     destination: generateDestinationId(),
     id: nanoid(POINT_ID_LENGTH),
     isFavorite: generateStatus(),
@@ -95,8 +96,7 @@ export const createRoutePoints = () => {
 
   if (generateStatus()) {
     return Array.from({length: getRandomNumberInRange(MIN_POINTS, MAX_POINTS)}, generateRoutePoint);
-
-  } else {
-    return [];
   }
+
+  return [];
 };
