@@ -1,19 +1,66 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { changeFormatToDateTime } from '../utils/date.js';
+import { getTargetDestination } from '../utils/filter.js';
+import { getNewOfferStatus, isOptionChecked } from '../utils/offers.js';
 import dayjs from 'dayjs';
 
-const createNewRouteEditorTemplate = (routePoints = {}, destinations) => {
+const createNewRouteEditorTemplate = (state = {}, destinations, offersData) => {
 
   const {
     basePrice = '',
     dateFrom = dayjs(new Date()),
     dateTo = dayjs(new Date()),
     type = 'flight',
-  } = routePoints;
+  } = state;
 
-  const currentDestination = destinations.filter((data) => data.id === routePoints.destination);
+  const currentDestination = destinations.filter((data) => data.id === state.destination);
 
   const {description, name, pictures} = currentDestination[0];
+
+  const getAvailableDestination = () => {
+    let destinationsContainer;
+
+    destinations.forEach( (elem) => {
+      destinationsContainer += (
+        `<option value="${elem.name}"></option>`
+      );
+    });
+    return destinationsContainer;
+  };
+
+  const getOffers = () => {
+    let offersContainer = '';
+
+    let offerType = offersData.filter((data) => data.type === state.type);
+    offerType = offerType[0].offers;
+
+    const offersMap = new Map(Object.entries(offerType));
+
+    state.offers.forEach( (currentOffer) => {
+      let currentOfferTitle;
+      let currentOfferPrice;
+
+      for (const offer of offersMap) {
+        if (offer[1].id === currentOffer[0]) {
+
+          currentOfferTitle = offer[1].title;
+          currentOfferPrice = offer[1].price;
+
+          offersContainer += (
+            `<div class="event__offer-selector">
+              <input class="event__offer-checkbox  visually-hidden" id="event-offer-${currentOfferTitle}-${currentOffer[0]}" type="checkbox" name="event-offer-${currentOfferTitle}" ${isOptionChecked(currentOffer[1])}>
+              <label class="event__offer-label" for="event-offer-${currentOfferTitle}-${currentOffer[0]}">
+                <span class="event__offer-title">${currentOfferTitle}</span>
+                +€&nbsp;
+                <span class="event__offer-price">${currentOfferPrice}</span>
+              </label>
+            </div>`
+          );
+        }
+      }
+    });
+    return offersContainer;
+  };
 
   return (
     `<li class="trip-events__item">
@@ -84,9 +131,7 @@ const createNewRouteEditorTemplate = (routePoints = {}, destinations) => {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
             <datalist id="destination-list-1">
-              <option value="Amsterdam"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
+            ${getAvailableDestination()}
             </datalist>
           </div>
 
@@ -112,52 +157,9 @@ const createNewRouteEditorTemplate = (routePoints = {}, destinations) => {
         <section class="event__details">
           <section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
+            
             <div class="event__available-offers">
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked="">
-                <label class="event__offer-label" for="event-offer-luggage-1">
-                  <span class="event__offer-title">Add luggage</span>
-                  +€&nbsp;
-                  <span class="event__offer-price">30</span>
-                </label>
-              </div>
-
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" checked="">
-                <label class="event__offer-label" for="event-offer-comfort-1">
-                  <span class="event__offer-title">Switch to comfort class</span>
-                  +€&nbsp;
-                  <span class="event__offer-price">100</span>
-                </label>
-              </div>
-
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal">
-                <label class="event__offer-label" for="event-offer-meal-1">
-                  <span class="event__offer-title">Add meal</span>
-                  +€&nbsp;
-                  <span class="event__offer-price">15</span>
-                </label>
-              </div>
-
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats">
-                <label class="event__offer-label" for="event-offer-seats-1">
-                  <span class="event__offer-title">Choose seats</span>
-                  +€&nbsp;
-                  <span class="event__offer-price">5</span>
-                </label>
-              </div>
-
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train">
-                <label class="event__offer-label" for="event-offer-train-1">
-                  <span class="event__offer-title">Travel by train</span>
-                  +€&nbsp;
-                  <span class="event__offer-price">40</span>
-                </label>
-              </div>
+            ${getOffers()}
             </div>
           </section>
 
@@ -181,23 +183,34 @@ const createNewRouteEditorTemplate = (routePoints = {}, destinations) => {
   );
 };
 
-export default class RouteEditorView extends AbstractView {
+export default class RouteEditorView extends AbstractStatefulView {
 
-  #routePoints = null;
   #destinations = null;
-  #offersData = null;
+  #offers = null;
 
-  constructor(routePoints, destinations, offersData) {
+  constructor(routePoint, destinations, offers) {
     super();
 
-    this.#routePoints = routePoints;
     this.#destinations = destinations;
-    this.#offersData = offersData;
+    this.#offers = offers;
+
+    this._state = RouteEditorView.parseRoutePointDataToState(routePoint);
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createNewRouteEditorTemplate(this.#routePoints, this.#destinations, this.#offersData);
+    return createNewRouteEditorTemplate(this._state, this.#destinations, this.#offers);
   }
+
+  reset = (routePoint) => {
+    this.updateElement(RouteEditorView.parseRoutePointDataToState(routePoint));
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setCancelClickHandler(this._callback.cancelClick);
+    this.setEditSubmitHandler(this._callback.formSubmit);
+  };
 
   setEditSubmitHandler = (cb) => {
     this._callback.formSubmit = cb;
@@ -218,4 +231,32 @@ export default class RouteEditorView extends AbstractView {
     evt.preventDefault();
     this._callback.cancelClick();
   };
+
+  #typeChangeHandler = (evt) => {
+    this.updateElement({ type: evt.target.value });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    this.updateElement({ destination: getTargetDestination(evt.target.value, this.#destinations)[0].id});
+  };
+
+  #offersChangeHandler = (evt) => {
+    evt.target.toggleAttribute('checked');
+    this.updateElement({ offers: getNewOfferStatus(evt.target.id, this._state.offers) });
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
+  };
+
+  static parseRoutePointDataToState = (routePoint) => (
+    {
+      ...routePoint,
+      destination: routePoint.destination,
+      type: routePoint.type,
+      offers: routePoint.offers
+    }
+  );
 }

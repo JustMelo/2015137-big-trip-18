@@ -62,22 +62,18 @@ const generateType = () => {
   return currentPointType;
 };
 
-const getOffersCount = () => Math.ceil(nanoid(1) / DIVIDE_BY);
-
 const getOffersByType = () => {
+  const pointOffers = [];
   let pointType = ALL_OFFERS.filter((offers) => offers.type === currentPointType);
   pointType = pointType[0];
 
   if (pointType.offers) {
-    return getRandomNumberInRange(1, pointType.offers.length);
+    pointType.offers.forEach((elem) => {
+      pointOffers.push([elem.id, generateStatus()]);
+    });
+    return pointOffers;
   }
 };
-
-const getOffers = () => new Set(
-  [...new Array(getOffersCount())].map( () => (
-    getOffersByType()
-  ))
-);
 
 const generateRoutePoint = () => (
   {
@@ -88,8 +84,9 @@ const generateRoutePoint = () => (
     id: nanoid(POINT_ID_LENGTH),
     isFavorite: generateStatus(),
     type: generateType(),
-    offers: getOffers()
+    offers: getOffersByType()
   }
+
 );
 
 export const createRoutePoints = () => {
