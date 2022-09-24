@@ -4,16 +4,16 @@ import { getTargetDestination } from '../utils/filter.js';
 import { getNewOfferStatus, isOptionChecked } from '../utils/offers.js';
 import dayjs from 'dayjs';
 
-const createNewRouteEditorTemplate = (state = {}, destinations, offersData) => {
+const createNewRouteEditorTemplate = (routePoint = {}, destinations, offersData) => {
 
   const {
     basePrice = '',
     dateFrom = dayjs(new Date()),
     dateTo = dayjs(new Date()),
     type = 'flight',
-  } = state;
+  } = routePoint;
 
-  const currentDestination = destinations.filter((data) => data.id === state.destination);
+  const currentDestination = destinations.filter((data) => data.id === routePoint.destination);
 
   const {description, name, pictures} = currentDestination[0];
 
@@ -31,12 +31,12 @@ const createNewRouteEditorTemplate = (state = {}, destinations, offersData) => {
   const getOffers = () => {
     let offersContainer = '';
 
-    let offerType = offersData.filter((data) => data.type === state.type);
+    let offerType = offersData.filter((data) => data.type === routePoint.type);
     offerType = offerType[0].offers;
 
     const offersMap = new Map(Object.entries(offerType));
 
-    state.offers.forEach( (currentOffer) => {
+    routePoint.offers.forEach( (currentOffer) => {
       let currentOfferTitle;
       let currentOfferPrice;
 

@@ -1,10 +1,10 @@
 const getNewOfferStatus = (target, stateOffers) => {
   const offerId = Number([...target].pop());
-  const originOffers = stateOffers.slice();
+  const offersList = stateOffers.slice();
 
   const newStateOffers = [];
 
-  originOffers.forEach( (offer) => {
+  offersList.forEach( (offer) => {
 
     if (offer[0] === offerId) {
       offer = [offer[0], !offer[1]];
