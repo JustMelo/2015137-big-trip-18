@@ -77,7 +77,7 @@ export default class MainPresenter {
   };
 
   #renderNoRoutes = () => {
-    render(new NoRoutePointView(), this.#routeListComponent.element);
+    render(new NoRoutePointView(this.#currentFilterType), this.#routeListComponent.element);
   };
 
   #renderRouteList = () => {

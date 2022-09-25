@@ -35,7 +35,10 @@ const getPassedRoutes = (routePoints) => {
   return filteredRoutePoints;
 };
 
+const getTargetDestination = (target, allDestinations) => allDestinations.filter((data) => data.name === target);
+
 export {
+  getTargetDestination,
   getUpcomingRoutes,
   getPassedRoutes
 };

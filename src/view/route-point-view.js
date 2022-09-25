@@ -14,13 +14,14 @@ const createOfferTemplate = (routePoint, offersData) => {
   offerType = offerType[0].offers;
   const offersMap = new Map(Object.entries(offerType));
 
-  routePoint.offers.forEach((offerId) => {
+  routePoint.offers.forEach((currentOffer) => {
+
     let currentOfferTitle;
     let currentOfferPrice;
 
     for (const offer of offersMap) {
+      if (offer[1].id === currentOffer[0]) {
 
-      if (offer[1].id === offerId) {
         currentOfferTitle = offer[1].title;
         currentOfferPrice = offer[1].price;
 

@@ -55,6 +55,7 @@ export default class RoutePointPresenter {
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#pointEditorComponent.reset(this.#routePointData);
       this.#closeEditor();
     }
   };
@@ -75,8 +76,9 @@ export default class RoutePointPresenter {
   #onEscKeyDown = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
-      this.#closeEditor();
+      this.#pointEditorComponent.reset(this.#routePointData);
       document.removeEventListener('keydown', this.#onEscKeyDown);
+      this.#closeEditor();
     }
   };
 
@@ -93,8 +95,9 @@ export default class RoutePointPresenter {
   };
 
   #handleCancleClick = () => {
-    this.#closeEditor();
+    this.#pointEditorComponent.reset(this.#routePointData);
     document.removeEventListener('keydown', this.#onEscKeyDown);
+    this.#closeEditor();
   };
 
   destroy = () => {

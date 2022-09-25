@@ -3,11 +3,11 @@ import duration from 'dayjs/plugin/duration';
 
 dayjs.extend(duration);
 
-const changeFormatToFullDateTime = (someDate) => dayjs(someDate).format('YYYY-MM-DDTHH:mm');
-const changeDateToMonthDays = (someDate) => dayjs(someDate).format('MMM DD');
-const changeDateToHoursMinutes = (someDate) => dayjs(someDate).format('HH[:]mm');
-const changeDateToYearsMonthsDays = (someDate) => dayjs(someDate).format('YYYY-MM-DD');
-const changeFormatToDateTime = (someDate) => dayjs(someDate).format('YY/MM/DD HH[:]mm');
+const changeFormatToFullDateTime = (date) => dayjs(date).format('YYYY-MM-DDTHH:mm');
+const changeDateToMonthDays = (date) => dayjs(date).format('MMM DD');
+const changeDateToHoursMinutes = (date) => dayjs(date).format('HH[:]mm');
+const changeDateToYearsMonthsDays = (date) => dayjs(date).format('YYYY-MM-DD');
+const changeFormatToDateTime = (date) => dayjs(date).format('YY/MM/DD HH[:]mm');
 
 const getDurationFromDates = (startDate, endDate) => {
   const dateFrom = dayjs(startDate);
