@@ -1,4 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import { getOfferData, getPointAllOffersData } from '../utils/offers.js';
 import {
   getDurationFromDates,
   changeDateToYearsMonthsDays,
@@ -7,36 +8,21 @@ import {
   changeFormatToFullDateTime
 } from '../utils/date.js';
 
-const createOfferTemplate = (routePoint, offersData) => {
-  let offersContainer = '';
+const getOffers = (routePoint, offersData) => routePoint.offers.map( (offer) => {
 
-  let offerType = offersData.filter((data) => data.type === routePoint.type);
-  offerType = offerType[0].offers;
-  const offersMap = new Map(Object.entries(offerType));
+  const pointOffersData = getPointAllOffersData(offersData, routePoint.type);
 
-  routePoint.offers.forEach((currentOffer) => {
+  const [offerId] = offer;
+  const [offerTitle, offerPrice] = getOfferData(pointOffersData, offerId);
 
-    let currentOfferTitle;
-    let currentOfferPrice;
-
-    for (const offer of offersMap) {
-      if (offer[1].id === currentOffer[0]) {
-
-        currentOfferTitle = offer[1].title;
-        currentOfferPrice = offer[1].price;
-
-        offersContainer += (
-          `<li class="event__offer">
-            <span class="event__offer-title">${currentOfferTitle}</span>
-            +€&nbsp;
-            <span class="event__offer-price">${currentOfferPrice}</span>
+  return (
+    `<li class="event__offer">
+             <span class="event__offer-title">${offerTitle}</span>
+             +€&nbsp;
+             <span class="event__offer-price">${offerPrice}</span>
           </li>`
-        );
-      }
-    }
-  });
-  return offersContainer;
-};
+  );
+}).join('');
 
 const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
 
@@ -73,7 +59,7 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${createOfferTemplate(routePoint, offersData)}
+          ${getOffers(routePoint, offersData)}
         </ul>
         <button class="event__favorite-btn ${setIsFavoriteButton()}" type="button">
           <span class="visually-hidden">Add to favorite</span>

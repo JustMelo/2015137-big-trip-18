@@ -1,7 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { changeFormatToDateTime } from '../utils/date.js';
 import { getTargetDestination } from '../utils/filter.js';
-import { getNewOfferStatus, isOptionChecked } from '../utils/offers.js';
+import { getNewOfferStatus, isOptionChecked, getPointAllOffersData, getOffersId, getOfferData } from '../utils/offers.js';
 import dayjs from 'dayjs';
 
 const createNewRouteEditorTemplate = (routePoint = {}, destinations, offersData) => {
@@ -17,50 +17,42 @@ const createNewRouteEditorTemplate = (routePoint = {}, destinations, offersData)
 
   const {description, name, pictures} = currentDestination[0];
 
-  const getAvailableDestination = () => {
-    let destinationsContainer;
+  const pointOffersData = getPointAllOffersData(offersData, routePoint.type);
 
-    destinations.forEach( (elem) => {
-      destinationsContainer += (
-        `<option value="${elem.name}"></option>`
-      );
-    });
-    return destinationsContainer;
-  };
+  const getDestinations = (pointType, pointName) => (
+    `
+    <div class="event__field-group  event__field-group--destination">
+      <label class="event__label  event__type-output" for="event-destination-1">
+        ${pointType}
+      </label>
+      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${pointName}" list="destination-list-1">
+      <datalist id="destination-list-1">
+        ${destinations.map( (elem) => `<option value="${elem.name}"></option>`).join('')}
+      </datalist>
+    </div>
+    `
+  );
 
-  const getOffers = () => {
-    let offersContainer = '';
+  const getPictures = () => pictures.map( (picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
 
-    let offerType = offersData.filter((data) => data.type === routePoint.type);
-    offerType = offerType[0].offers;
+  const getOffers = () => routePoint.offers.map( (offer) => {
 
-    const offersMap = new Map(Object.entries(offerType));
+    const [offerId, offerStatus] = offer;
+    const [offerTitle, offerPrice] = getOfferData(pointOffersData, offerId);
 
-    routePoint.offers.forEach( (currentOffer) => {
-      let currentOfferTitle;
-      let currentOfferPrice;
-
-      for (const offer of offersMap) {
-        if (offer[1].id === currentOffer[0]) {
-
-          currentOfferTitle = offer[1].title;
-          currentOfferPrice = offer[1].price;
-
-          offersContainer += (
-            `<div class="event__offer-selector">
-              <input class="event__offer-checkbox  visually-hidden" id="event-offer-${currentOfferTitle}-${currentOffer[0]}" type="checkbox" name="event-offer-${currentOfferTitle}" ${isOptionChecked(currentOffer[1])}>
-              <label class="event__offer-label" for="event-offer-${currentOfferTitle}-${currentOffer[0]}">
-                <span class="event__offer-title">${currentOfferTitle}</span>
-                +€&nbsp;
-                <span class="event__offer-price">${currentOfferPrice}</span>
-              </label>
-            </div>`
-          );
-        }
-      }
-    });
-    return offersContainer;
-  };
+    return (
+      `
+      <div class="event__offer-selector">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerTitle}-${offerId}" type="checkbox" name="event-offer-${offerTitle}" ${isOptionChecked(offerStatus)}>
+        <label class="event__offer-label" for="event-offer-${offerTitle}-${offerId}">
+          <span class="event__offer-title">${offerTitle}</span>
+            +€&nbsp;
+          <span class="event__offer-price">${offerPrice}</span>
+        </label>
+      </div>
+      `
+    );
+  }).join('');
 
   return (
     `<li class="trip-events__item">
@@ -125,15 +117,7 @@ const createNewRouteEditorTemplate = (routePoint = {}, destinations, offersData)
             </div>
           </div>
 
-          <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-1">
-              ${type}
-            </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
-            <datalist id="destination-list-1">
-            ${getAvailableDestination()}
-            </datalist>
-          </div>
+          ${getDestinations(type, name)}
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
@@ -169,11 +153,7 @@ const createNewRouteEditorTemplate = (routePoint = {}, destinations, offersData)
 
             <div class="event__photos-container">
               <div class="event__photos-tape">
-                <img class="event__photo" src="${pictures[0].src}" alt="${pictures[0].description}">
-                <img class="event__photo" src="${pictures[1].src}" alt="${pictures[1].description}">
-                <img class="event__photo" src="${pictures[2].src}" alt="${pictures[2].description}">
-                <img class="event__photo" src="${pictures[3].src}" alt="${pictures[3].description}">
-                <img class="event__photo" src="${pictures[4].src}" alt="${pictures[4].description}">
+                ${getPictures()}
               </div>
             </div>
           </section>
@@ -224,7 +204,7 @@ export default class RouteEditorView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(RouteEditorView.parseRoutePointDataToState(this._state));
   };
 
   #editCancelHandler = (evt) => {
@@ -233,7 +213,11 @@ export default class RouteEditorView extends AbstractStatefulView {
   };
 
   #typeChangeHandler = (evt) => {
-    this.updateElement({ type: evt.target.value });
+    this.updateElement(
+      {
+        type: evt.target.value,
+        offers: getOffersId(this.#offers, evt.target.value),
+      });
   };
 
   #destinationChangeHandler = (evt) => {
@@ -254,9 +238,11 @@ export default class RouteEditorView extends AbstractStatefulView {
   static parseRoutePointDataToState = (routePoint) => (
     {
       ...routePoint,
-      destination: routePoint.destination,
-      type: routePoint.type,
-      offers: routePoint.offers
     }
   );
+
+  static parseStateToRoutePoint = (state) => {
+    const routPoint = {...state};
+    return routPoint;
+  };
 }

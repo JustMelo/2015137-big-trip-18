@@ -5,7 +5,7 @@ import {
   DESTINATION_NAMES,
   THEMES,
   destinationsIds,
-  MAX_HOURS as DESTINATION_PICTURE_COUNT,
+  DESTINATION_ID_LENGTH as DESTINATION_PICTURE_COUNT,
 } from './const.js';
 
 const getDescription = () => DESCRIPTIONS[getRandomNumberInRange(0, DESCRIPTIONS.length - 1)];
