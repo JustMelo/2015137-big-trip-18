@@ -52,9 +52,9 @@ const generateDateTo = (fromDate) => dayjs(fromDate).
   add(getRandomNumberInRange(0, MAX_MINUTES), 'minute');
 
 const generateDestinationId = () => {
-  const someDestinationId = nanoid(DESTINATION_ID_LENGTH);
-  destinationsIds.push(someDestinationId);
-  return someDestinationId;
+  const destinationId = nanoid(DESTINATION_ID_LENGTH);
+  destinationsIds.push(destinationId);
+  return destinationId;
 };
 
 const generateType = () => {

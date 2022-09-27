@@ -2,7 +2,7 @@ import RouteEditorView from '../view/route-editor-view.js';
 import RoutePointView from '../view/route-point-view.js';
 import { render, replace, remove } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
-import { Mode } from '../const.js';
+import { Mode, UpdateType, UserAction } from '../const.js';
 
 export default class RoutePointPresenter {
   #routeListComponent = null;
@@ -35,6 +35,7 @@ export default class RoutePointPresenter {
     this.#routePointComponent.setEditClickHandler(this.#handleEditClick);
     this.#pointEditorComponent.setEditSubmitHandler(this.#handleFormSubmit);
     this.#pointEditorComponent.setCancelClickHandler(this.#handleCancleClick);
+    this.#pointEditorComponent.setDeleteClickHandler(this.#handleDeleteClick);
 
     if (prevRoutePointComponent === null || prevEditorComponent === null) {
       render(this.#routePointComponent, this.#routeListComponent);
@@ -83,14 +84,23 @@ export default class RoutePointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#routePointData, isFavorite: !this.#routePointData.isFavorite});
+    this.#changeData(
+      UserAction.UPDATE_ROUTE,
+      UpdateType.MINOR,
+      {...this.#routePointData, isFavorite: !this.#routePointData.isFavorite},
+    );
   };
 
   #handleEditClick = () => {
     this.#openEditor();
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (routePoint) => {
+    this.#changeData(
+      UserAction.UPDATE_ROUTE,
+      UpdateType.MINOR,
+      routePoint,
+    );
     this.#closeEditor();
   };
 
@@ -98,6 +108,14 @@ export default class RoutePointPresenter {
     this.#pointEditorComponent.reset(this.#routePointData);
     document.removeEventListener('keydown', this.#onEscKeyDown);
     this.#closeEditor();
+  };
+
+  #handleDeleteClick = (routePoint) => {
+    this.#changeData(
+      UserAction.DELETE_ROUTE,
+      UpdateType.MINOR,
+      routePoint,
+    );
   };
 
   destroy = () => {

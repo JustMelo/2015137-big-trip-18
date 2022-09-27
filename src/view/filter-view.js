@@ -1,55 +1,38 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { getUpcomingRoutes, getPassedRoutes } from '../utils/filter.js';
-import { DISABLED_ELEMENT } from '../const.js';
 
-const createNewFiltersElementTemplate = (routePoints) => {
-
-  const setFutureFilter = () => {
-    if (getUpcomingRoutes(routePoints).length === 0) {
-      return DISABLED_ELEMENT;
-    }
-    return '';
-  };
-
-  const setPastFilter = () => {
-    if (getPassedRoutes(routePoints).length === 0) {
-      return DISABLED_ELEMENT;
-    }
-    return '';
-  };
+const getFilters = (filter, currentFilterType) => filter.map( (elem) => {
+  const {type, name, count} = elem;
 
   return (
-    `<form class="trip-filters" action="#" method="get">
+    `
       <div class="trip-filters__filter">
-        <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" checked="">
-        <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
+        <input id="filter-${name}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${name}" ${count === 0 ? 'disabled' : ''}
+        ${type === currentFilterType ? 'checked' : ''}>
+        <label class="trip-filters__filter-label" for="filter-${name}">${name}</label>
       </div>
-
-      <div class="trip-filters__filter">
-        <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future" ${setFutureFilter()}>
-        <label class="trip-filters__filter-label" for="filter-future">Future</label>
-      </div>
-
-      <div class="trip-filters__filter">
-        <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past" ${setPastFilter()}>
-        <label class="trip-filters__filter-label" for="filter-past">Past</label>
-      </div>
-
-      <button class="visually-hidden" type="submit">Accept filter</button>
-    </form>`
+    `
   );
-};
+}).join('');
+
+const createNewFiltersElementTemplate = (filter, currentFilterType) => (
+  `<form class="trip-filters" action="#" method="get">
+    ${getFilters(filter, currentFilterType)}
+    <button class="visually-hidden" type="submit">Accept filter</button>
+  </form>`
+);
 
 export default class FilterView extends AbstractView {
-  #routePoints = null;
+  #filters = null;
+  #currentFilter = null;
 
-  constructor (routePoints) {
+  constructor(filters, currentFilterType) {
     super();
-    this.#routePoints = routePoints;
+    this.#filters = filters;
+    this.#currentFilter = currentFilterType;
   }
 
   get template() {
-    return createNewFiltersElementTemplate(this.#routePoints);
+    return createNewFiltersElementTemplate(this.#filters, this.#currentFilter);
   }
 
   setFilterChangeHandler = (cb) => {

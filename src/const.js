@@ -2,6 +2,18 @@ const DESTINATIONS_MAX = 3;
 const DESTINATIONS_MID = 2;
 const MAX_POINTS = 10;
 
+const UserAction = {
+  UPDATE_ROUTE: 'UPDATE_ROUTE',
+  ADD_ROUTE: 'ADD_ROUTE',
+  DELETE_ROUTE: 'DELETE_ROUTE',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
 const DISABLED_ELEMENT = 'disabled';
 
 const Mode = {
@@ -29,4 +41,14 @@ const SortType = {
   OFFER: 'sort-offer',
 };
 
-export {DESTINATIONS_MAX, DESTINATIONS_MID, MAX_POINTS, DISABLED_ELEMENT, Mode, FilterType, FilterText, SortType};
+export {
+  DESTINATIONS_MAX,
+  DESTINATIONS_MID,
+  MAX_POINTS,
+  DISABLED_ELEMENT,
+  Mode,
+  FilterType,
+  FilterText,
+  SortType,
+  UserAction,
+  UpdateType};

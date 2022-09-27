@@ -24,19 +24,19 @@ const getOffers = (routePoint, offersData) => routePoint.offers.map( (offer) => 
   );
 }).join('');
 
+const setIsFavoriteButton = (isFavorite) => {
+
+  if (isFavorite) {
+    return 'event__favorite-btn--active';
+  }
+
+  return '';
+};
+
 const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
 
   const {basePrice, type, dateFrom, dateTo, isFavorite} = routePoint;
   const destinationPoint = destinations.filter((data) => data.id === routePoint.destination);
-
-  const setIsFavoriteButton = () => {
-
-    if (isFavorite) {
-      return 'event__favorite-btn--active';
-    }
-
-    return '';
-  };
 
   return (
     `<li class="trip-events__item">
@@ -61,7 +61,7 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
         <ul class="event__selected-offers">
           ${getOffers(routePoint, offersData)}
         </ul>
-        <button class="event__favorite-btn ${setIsFavoriteButton()}" type="button">
+        <button class="event__favorite-btn ${setIsFavoriteButton(isFavorite)}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
             <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"></path>
