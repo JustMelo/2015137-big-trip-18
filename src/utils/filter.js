@@ -1,3 +1,4 @@
+import { FilterType } from '../const';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 
@@ -35,10 +36,26 @@ const getPassedRoutes = (routePoints) => {
   return filteredRoutePoints;
 };
 
-const getTargetDestination = (target, allDestinations) => allDestinations.filter((data) => data.name === target);
+const filterRoutes = (filterType, routesList) => {
+
+  switch(filterType) {
+
+    case FilterType.FUTURE :
+      return getUpcomingRoutes(routesList);
+
+    case FilterType.PAST :
+      return getPassedRoutes(routesList);
+
+    default:
+      return routesList;
+  }
+};
+
+const getTargetDestination = (target, data) => data.filter((elem) => elem.name === target);
 
 export {
   getTargetDestination,
   getUpcomingRoutes,
-  getPassedRoutes
+  getPassedRoutes,
+  filterRoutes
 };

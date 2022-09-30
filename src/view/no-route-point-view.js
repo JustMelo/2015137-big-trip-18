@@ -5,15 +5,16 @@ const displayNoRoutePointTemplate = (filterType) => {
 
   const checkFilterType = () => {
 
-    if (filterType === FilterType.FUTURE) {
-      return FilterText.FUTURE;
-    }
+    switch(filterType) {
+      case (FilterType.FUTURE):
+        return FilterText.FUTURE;
 
-    if (filterType === FilterType.PAST) {
-      return FilterText.PAST;
-    }
+      case (FilterType.PAST):
+        return FilterText.PAST;
 
-    return FilterText.EVERYTHING;
+      default:
+        return FilterText.EVERYTHING;
+    }
   };
 
   return (

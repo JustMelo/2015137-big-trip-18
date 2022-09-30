@@ -52,9 +52,9 @@ const generateDateTo = (fromDate) => dayjs(fromDate).
   add(getRandomNumberInRange(0, MAX_MINUTES), 'minute');
 
 const generateDestinationId = () => {
-  const someDestinationId = nanoid(DESTINATION_ID_LENGTH);
-  destinationsIds.push(someDestinationId);
-  return someDestinationId;
+  const destinationId = nanoid(DESTINATION_ID_LENGTH);
+  destinationsIds.push(destinationId);
+  return destinationId;
 };
 
 const generateType = () => {
@@ -62,9 +62,9 @@ const generateType = () => {
   return currentPointType;
 };
 
-const getOffersByType = () => {
+const getOffersByType = (PointType) => {
   const pointOffers = [];
-  let pointType = ALL_OFFERS.filter((offers) => offers.type === currentPointType);
+  let pointType = ALL_OFFERS.filter((offers) => offers.type === PointType);
   pointType = pointType[0];
 
   if (pointType.offers) {
@@ -84,7 +84,7 @@ const generateRoutePoint = () => (
     id: nanoid(POINT_ID_LENGTH),
     isFavorite: generateStatus(),
     type: generateType(),
-    offers: getOffersByType()
+    offers: getOffersByType(currentPointType)
   }
 
 );
@@ -97,3 +97,5 @@ export const createRoutePoints = () => {
 
   return [];
 };
+
+export {getOffersByType, generateDestinationId};

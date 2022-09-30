@@ -1,4 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import { getOfferData, getPointAllOffersData } from '../utils/offers.js';
 import {
   getDurationFromDates,
   changeDateToYearsMonthsDays,
@@ -7,50 +8,35 @@ import {
   changeFormatToFullDateTime
 } from '../utils/date.js';
 
-const createOfferTemplate = (routePoint, offersData) => {
-  let offersContainer = '';
+const getOffers = (routePoint, offersData) => routePoint.offers.map( (offer) => {
 
-  let offerType = offersData.filter((data) => data.type === routePoint.type);
-  offerType = offerType[0].offers;
-  const offersMap = new Map(Object.entries(offerType));
+  const pointOffersData = getPointAllOffersData(offersData, routePoint.type);
 
-  routePoint.offers.forEach((currentOffer) => {
+  const [offerId] = offer;
+  const [offerTitle, offerPrice] = getOfferData(pointOffersData, offerId);
 
-    let currentOfferTitle;
-    let currentOfferPrice;
-
-    for (const offer of offersMap) {
-      if (offer[1].id === currentOffer[0]) {
-
-        currentOfferTitle = offer[1].title;
-        currentOfferPrice = offer[1].price;
-
-        offersContainer += (
-          `<li class="event__offer">
-            <span class="event__offer-title">${currentOfferTitle}</span>
-            +€&nbsp;
-            <span class="event__offer-price">${currentOfferPrice}</span>
+  return (
+    `<li class="event__offer">
+             <span class="event__offer-title">${offerTitle}</span>
+             +€&nbsp;
+             <span class="event__offer-price">${offerPrice}</span>
           </li>`
-        );
-      }
-    }
-  });
-  return offersContainer;
+  );
+}).join('');
+
+const setIsFavoriteButton = (isFavorite) => {
+
+  if (isFavorite) {
+    return 'event__favorite-btn--active';
+  }
+
+  return '';
 };
 
 const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
 
   const {basePrice, type, dateFrom, dateTo, isFavorite} = routePoint;
   const destinationPoint = destinations.filter((data) => data.id === routePoint.destination);
-
-  const setIsFavoriteButton = () => {
-
-    if (isFavorite) {
-      return 'event__favorite-btn--active';
-    }
-
-    return '';
-  };
 
   return (
     `<li class="trip-events__item">
@@ -73,9 +59,9 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${createOfferTemplate(routePoint, offersData)}
+          ${getOffers(routePoint, offersData)}
         </ul>
-        <button class="event__favorite-btn ${setIsFavoriteButton()}" type="button">
+        <button class="event__favorite-btn ${setIsFavoriteButton(isFavorite)}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
             <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"></path>

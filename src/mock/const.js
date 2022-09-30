@@ -40,7 +40,7 @@ const MAX_DAYS = 7;
 const MAX_MINUTES = 15;
 const DIVIDE_BY = 3;
 const POINT_ID_LENGTH = 10;
-const DESTINATION_ID_LENGTH = 4;
+const DESTINATION_ID_LENGTH = 5;
 
 
 const destinationsIds = [];
@@ -56,5 +56,5 @@ export {
   POINT_ID_LENGTH,
   DESTINATION_ID_LENGTH,
   THEMES,
-  destinationsIds
+  destinationsIds,
 };

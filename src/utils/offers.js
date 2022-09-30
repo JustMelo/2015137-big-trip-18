@@ -16,9 +16,37 @@ const getNewOfferStatus = (target, stateOffers) => {
   return newStateOffers;
 };
 
-const isOptionChecked = (state) => state === true ? 'checked' : '';
+const isOptionChecked = (state) => state ? 'checked' : '';
+
+const getOfferData = (OffersData, offerId) => {
+  const offerData = OffersData.filter( (data) =>
+    data.id === offerId
+  );
+
+  return [offerData[0].title, offerData[0].price];
+};
+
+const getPointAllOffersData = (offersData, pointType) => {
+
+  let pointData = offersData.filter( (data) => data.type === pointType);
+  pointData = pointData[0].offers;
+
+  return pointData;
+};
+
+const getOffersId = (offersData, pointType) => {
+  const pointData = getPointAllOffersData(offersData, pointType);
+  const newOffers = [];
+
+  pointData.forEach( (elem) => newOffers.push([elem.id]) );
+
+  return newOffers;
+};
 
 export {
+  getPointAllOffersData,
   getNewOfferStatus,
-  isOptionChecked
+  isOptionChecked,
+  getOfferData,
+  getOffersId
 };

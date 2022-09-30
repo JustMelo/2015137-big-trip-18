@@ -8,6 +8,7 @@ const changeDateToMonthDays = (date) => dayjs(date).format('MMM DD');
 const changeDateToHoursMinutes = (date) => dayjs(date).format('HH[:]mm');
 const changeDateToYearsMonthsDays = (date) => dayjs(date).format('YYYY-MM-DD');
 const changeFormatToDateTime = (date) => dayjs(date).format('YY/MM/DD HH[:]mm');
+const changeFormatToUtc = (data) => dayjs(data).format('YYYY-MM-DDTHH:MM:ss[.]SSS[Z]');
 
 const getDurationFromDates = (startDate, endDate) => {
   const dateFrom = dayjs(startDate);
@@ -31,5 +32,6 @@ export {
   changeDateToYearsMonthsDays,
   changeFormatToDateTime,
   changeFormatToFullDateTime,
+  changeFormatToUtc,
   getDurationFromDates
 };
