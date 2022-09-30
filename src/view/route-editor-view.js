@@ -1,8 +1,37 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { changeFormatToDateTime } from '../utils/date.js';
+import { changeFormatToDateTime, changeFormatToUtc } from '../utils/date.js';
 import { getTargetDestination } from '../utils/filter.js';
+import { priceValidation, checkDestination } from '../utils/validation.js';
 import { getNewOfferStatus, isOptionChecked, getPointAllOffersData, getOffersId, getOfferData } from '../utils/offers.js';
+import { INVALID_DESTINATION_TEXT } from '../const.js';
 import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import he from 'he';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
+dayjs.extend(isBetween);
+
+const pickButtonName = (state) => state ? 'Delete' : 'Cancel';
+
+const getInputPattern = (destinations) => {
+  let destinationsPattern = '';
+
+  destinations.map( (elem) => {
+    destinationsPattern += `${elem.name}|`;
+  });
+
+  return destinationsPattern;
+};
+
+const checkButtonState = (state) => {
+  if (state) {
+    return `<button class="event__rollup-btn" type="button">
+              <span class="visually-hidden">Open event</span>
+            </button>`;
+  }
+  return '';
+};
 
 const getDestinations = (pointType, pointName, allDestinations) => (
   `
@@ -10,9 +39,10 @@ const getDestinations = (pointType, pointName, allDestinations) => (
     <label class="event__label  event__type-output" for="event-destination-1">
       ${pointType}
     </label>
-    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${pointName}" list="destination-list-1">
+    <input class="event__input  event__input--destination" id="event-destination-1" type="text" 
+    name="event-destination" value="${he.encode(pointName)}" list="destination-list-1" required pattern="${getInputPattern(allDestinations)}">
     <datalist id="destination-list-1">
-      ${allDestinations.map( (elem) => `<option value="${elem.name}"></option>`).join('')}
+      ${allDestinations.map( (elem) => `<option hidden value="${elem.name}"></option>`).join('')}
     </datalist>
   </div>
   `
@@ -52,14 +82,17 @@ const getOffersTypes = (allOffers, currentPointType) => allOffers.map( (elem) =>
   );
 }).join('');
 
-const createNewRouteEditorTemplate = (routePoint = {}, destinations, offersData) => {
+const createNewRouteEditorTemplate = (routePoint, destinations, offersData) => {
 
-  const {
-    basePrice = '',
-    dateFrom = dayjs(new Date()),
-    dateTo = dayjs(new Date()),
-    type = 'flight',
-  } = routePoint;
+  const {type, dateTo, dateFrom, basePrice} = routePoint;
+
+  let editState = true;
+
+  if (!routePoint.destination) {
+    editState = false;
+    routePoint.destination = destinations[0].id;
+
+  }
 
   const currentDestination = destinations.filter((data) => data.id === routePoint.destination);
 
@@ -103,14 +136,12 @@ const createNewRouteEditorTemplate = (routePoint = {}, destinations, offersData)
               <span class="visually-hidden">Price</span>
               €
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
-          <button class="event__rollup-btn" type="button">
-                    <span class="visually-hidden">Open event</span>
-          </button>
+          <button class="event__reset-btn" type="reset">${pickButtonName(editState)}</button>
+          ${checkButtonState(editState)}
         </header>
         <section class="event__details">
           <section class="event__section  event__section--offers">
@@ -142,7 +173,8 @@ const createNewRouteEditorTemplate = (routePoint = {}, destinations, offersData)
 };
 
 export default class RouteEditorView extends AbstractStatefulView {
-
+  #datePickerFrom = null;
+  #datePickerTo = null;
   #destinations = null;
   #offers = null;
 
@@ -159,6 +191,20 @@ export default class RouteEditorView extends AbstractStatefulView {
   get template() {
     return createNewRouteEditorTemplate(this._state, this.#destinations, this.#offers);
   }
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datePickerFrom) {
+      this.#datePickerFrom.destroy();
+      this.#datePickerFrom = null;
+    }
+
+    if (this.#datePickerTo) {
+      this.#datePickerTo.destroy();
+      this.#datePickerTo = null;
+    }
+  };
 
   reset = (routePoint) => {
     this.updateElement(RouteEditorView.parseRoutePointDataToState(routePoint));
@@ -186,6 +232,64 @@ export default class RouteEditorView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#routeDeleteClickHandler);
   };
 
+  #dateFromChangeHandler = ([userDataFrom]) => {
+    this.updateElement({
+      dateFrom: changeFormatToUtc(userDataFrom),
+    });
+  };
+
+  #dateToChangeHandler = ([userDateTo]) => {
+    this.updateElement({
+      dateTo: changeFormatToUtc(userDateTo),
+    });
+  };
+
+  #setDatePicker = () => {
+    const { dateFrom, dateTo } = this._state;
+    const startDate = this.element.querySelector('#event-start-time-1');
+    const endDate = this.element.querySelector('#event-end-time-1');
+
+    this.#datePickerFrom = flatpickr(
+      startDate,
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        'time_24hr': true,
+        defaultDate: changeFormatToDateTime(dateFrom),
+        onChange: this.#dateFromChangeHandler,
+        minDate: 'today',
+      },
+    );
+
+    this.#datePickerTo = flatpickr(
+      endDate,
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        'time_24hr': true,
+        defaultDate: changeFormatToDateTime(dateTo),
+        onChange: this.#dateToChangeHandler,
+        minDate: this.#datePickerFrom.selectedDates[0],
+      },
+    );
+
+    this.#datePickerFrom.config.onChange.push( () => {
+      this.#datePickerTo.set('minDate', this.#datePickerFrom.selectedDates[0] );
+    } );
+
+    if (dayjs(this.#datePickerFrom.selectedDates[0] ).isAfter(dayjs(this.#datePickerTo.selectedDates[0] ) ) ) {
+      this.#datePickerTo.setDate(this.#datePickerFrom.selectedDates[0] );
+    }
+
+  };
+
+  #priceFieldlistener = (evt) => {
+    this.value = priceValidation(evt.target.value);
+    this.updateElement( {
+      basePrice: priceValidation(evt.target.value),
+    } );
+  };
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this._callback.formSubmit(RouteEditorView.parseStateToRoutePoint(this._state));
@@ -210,7 +314,13 @@ export default class RouteEditorView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = (evt) => {
-    this.updateElement({ destination: getTargetDestination(evt.target.value, this.#destinations)[0].id});
+    if (!checkDestination(evt.target.value, this.#destinations)) {
+      this.element.querySelector('.event__input--destination').setCustomValidity(INVALID_DESTINATION_TEXT);
+      this.value = evt.target.defaultValue;
+      return;
+    }
+    this.element.querySelector('.event__input--destination').setCustomValidity('');
+    this.updateElement( { destination: getTargetDestination(evt.target.value, this.#destinations)[0].id });
   };
 
   #offersChangeHandler = (evt) => {
@@ -220,14 +330,14 @@ export default class RouteEditorView extends AbstractStatefulView {
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('blur', this.#destinationChangeHandler);
     this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceFieldlistener);
+    this.#setDatePicker();
   };
 
   static parseRoutePointDataToState = (routePoint) => (
-    {
-      ...routePoint,
-    }
+    {...routePoint}
   );
 
   static parseStateToRoutePoint = (state) => {

@@ -663,6 +663,10 @@ main {
   border: none; }
   .event__input--destination {
     width: 150px; }
+    .event__input--destination:invalid {
+      box-shadow: 0 0 5px 1px red; }
+      .event__input--destination:focus:invalid {
+        box-shadow: none; }
     .event__input--destination::-webkit-calendar-picker-indicator {
       display: none; }
   .event__input--time {

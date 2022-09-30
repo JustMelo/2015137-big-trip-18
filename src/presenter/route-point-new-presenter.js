@@ -1,10 +1,8 @@
+import { ROUTE_BLANK } from '../const.js';
 import RouteEditorView from '../view/route-editor-view.js';
 import { UserAction, UpdateType } from '../const.js';
-import { remove, render } from '../framework/render';
+import { remove, render, RenderPosition } from '../framework/render';
 import { isEscapeKey } from '../utils/common.js';
-import { customAlphabet } from 'nanoid';
-
-const nanoid = customAlphabet('1234567890');
 
 export default class RoutePointNewPresenter {
   #routeListContainer = null;
@@ -17,18 +15,18 @@ export default class RoutePointNewPresenter {
     this.#changeData = changeData;
   }
 
-  init = (cb) => {
+  init = (cb, destinations, offers) => {
     this.#destroyCallback = cb;
 
     if (this.#routeEditComponent !== null) {
       return;
     }
 
-    this.#routeEditComponent = new RouteEditorView();
-    this.#routeEditComponent.setFormSubmitHandler(this.#handleFormSubmit);
+    this.#routeEditComponent = new RouteEditorView(ROUTE_BLANK, destinations, offers);
+    this.#routeEditComponent.setEditSubmitHandler(this.#handleFormSubmit);
     this.#routeEditComponent.setDeleteClickHandler(this.#handleDeleteClick);
 
-    render(this.#routeEditComponent, this.#routeListContainer);
+    render(this.#routeEditComponent, this.#routeListContainer, RenderPosition.AFTERBEGIN);
 
     document.addEventListener('keydown', this.#onEscKeyDown);
   };
@@ -51,8 +49,6 @@ export default class RoutePointNewPresenter {
       UserAction.ADD_ROUTE,
       UpdateType.MINOR,
       {
-        id: nanoid(),
-        destination: nanoid(),
         ...route
       },
     );

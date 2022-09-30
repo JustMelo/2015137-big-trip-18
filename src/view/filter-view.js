@@ -45,5 +45,4 @@ export default class FilterView extends AbstractView {
 
     this._callback.filterChange(evt.target.value);
   };
-
 }

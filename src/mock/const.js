@@ -56,5 +56,5 @@ export {
   POINT_ID_LENGTH,
   DESTINATION_ID_LENGTH,
   THEMES,
-  destinationsIds
+  destinationsIds,
 };

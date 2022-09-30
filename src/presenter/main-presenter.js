@@ -1,5 +1,5 @@
 import RoutePointPresenter from './route-point-presenter.js';
-import RoutePointNewPresenter from './new-route-point-presenter.js';
+import RoutePointNewPresenter from './route-point-new-presenter.js';
 import HeaderInfoView from '../view/header-info-view.js';
 import SortView from '../view/sort-view.js';
 import RouteListView from '../view/route-points-list-view.js';
@@ -28,24 +28,28 @@ const sortElement = document.querySelector('.trip-events');
 
 export default class MainPresenter {
   #routeModel = null;
-  #sortComponent = null;
+  #destinationsModel = null;
+  #offersModel = null;
   #filterModel = null;
-  #noRoutesComponent = null;
-  #routePointNewPresenter = null;
-  #routeNewButtonComponent = null;
 
+  #noRoutesComponent = null;
+  #sortComponent = null;
+  #routeNewButtonComponent = null;
   #routeListComponent = new RouteListView();
 
+  #routePointNewPresenter = null;
   #routePointPresenter = new Map();
 
   #currentFilterType = FilterType.EVERYTHING;
   #currentSortType = SortType.DAY;
 
-  constructor(routeModel, filterModel) {
+  constructor(routeModel, destinationsModel, offersModel, filterModel) {
     this.#routeModel = routeModel;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
     this.#filterModel = filterModel;
 
-    this.#routePointNewPresenter = new RoutePointNewPresenter(this.#routeListComponent, this.#handleViewAction);
+    this.#routePointNewPresenter = new RoutePointNewPresenter(this.#routeListComponent.element, this.#handleViewAction);
 
     this.#routeModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -56,7 +60,6 @@ export default class MainPresenter {
     this.#currentFilterType = this.#filterModel.filter;
     const routes = this.#routeModel.routePoints;
     const filteredRoutes = filterRoutes(this.#currentFilterType, routes);
-
 
     switch(this.#currentSortType) {
 
@@ -94,7 +97,7 @@ export default class MainPresenter {
   #createRoutePoint = (cb) => {
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#routePointNewPresenter.init(cb);
+    this.#routePointNewPresenter.init(cb, this.#destinationsModel.destinations, this.#offersModel.offers);
   };
 
   #renderNewRouteButton = () => {
@@ -119,12 +122,17 @@ export default class MainPresenter {
   };
 
   #renderHeader = () => {
-    render(new HeaderInfoView( this.routePoints, this.#routeModel.destinationPoints ), headerInfoElement, RenderPosition.AFTERBEGIN);
+    render(new HeaderInfoView( this.routePoints, this.#destinationsModel.destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
   };
 
   #renderRoutes = () => {
+    if (this.routePoints.every((point) => point.isArchive)) {
+      this.#renderNoRoutes();
+      return;
+    }
+
     this.routePoints.forEach((routePoint) => {
-      this.#renderRoutePoint([routePoint, this.#routeModel.destinationPoints, this.#routeModel.offersData]);
+      this.#renderRoutePoint([routePoint, this.#destinationsModel.destinations, this.#offersModel.offers]);
     });
   };
 

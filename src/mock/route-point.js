@@ -62,9 +62,9 @@ const generateType = () => {
   return currentPointType;
 };
 
-const getOffersByType = () => {
+const getOffersByType = (PointType) => {
   const pointOffers = [];
-  let pointType = ALL_OFFERS.filter((offers) => offers.type === currentPointType);
+  let pointType = ALL_OFFERS.filter((offers) => offers.type === PointType);
   pointType = pointType[0];
 
   if (pointType.offers) {
@@ -84,7 +84,7 @@ const generateRoutePoint = () => (
     id: nanoid(POINT_ID_LENGTH),
     isFavorite: generateStatus(),
     type: generateType(),
-    offers: getOffersByType()
+    offers: getOffersByType(currentPointType)
   }
 
 );
@@ -97,3 +97,5 @@ export const createRoutePoints = () => {
 
   return [];
 };
+
+export {getOffersByType, generateDestinationId};
