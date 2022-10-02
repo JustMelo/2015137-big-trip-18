@@ -1,16 +1,41 @@
-import { getOffersByType} from './mock/route-point.js';
 import dayjs from 'dayjs';
-import { customAlphabet } from 'nanoid';
-
-const nanoid = customAlphabet('1234567890');
-
-const INPUT_PRICE_PATTERN = /[\D]+/g;
+import { nanoid } from 'nanoid';
 
 const INVALID_DESTINATION_TEXT = 'Please select a destination from the following list';
+
+const INPUT_PRICE_PATTERN = /[\D]+/g;
 
 const DESTINATIONS_MAX = 3;
 const DESTINATIONS_MID = 2;
 const MAX_POINTS = 10;
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
+const RequestHandlers = {
+
+  Method: {
+    GET: 'GET',
+    PUT: 'PUT',
+    POST: 'POST',
+    DELETE: 'DELETE',
+  },
+
+  Type: {
+    POINTS_SEND: 'points/',
+    POINTS_GET: '/points',
+    DESTINATIONS: '/destinations',
+    OFFERS: '/offers',
+  },
+
+  RequestData: {
+    AUTHORIZATION: `Basic ${nanoid()}`,
+    END_POINT: 'https://18.ecmascript.pages.academy/big-trip',
+  },
+};
+
 
 const UserAction = {
   UPDATE_ROUTE: 'UPDATE_ROUTE',
@@ -22,6 +47,25 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
+};
+
+const InitData = {
+  POINT: 'POINT',
+  DESTINATIONS: 'DESTINATIONS',
+  OFFERS: 'OFFERS',
+};
+
+const ButtonStateName = {
+  SaveBtn: {
+    SAVE: 'Save',
+    SAVING: 'Saving...'
+  },
+  DeleteBtn: {
+    CANCEL: 'Cancel',
+    DELETE: 'Delete',
+    DELETING: 'Deleting...'
+  },
 };
 
 const DISABLED_ELEMENT = 'disabled';
@@ -63,10 +107,10 @@ const ROUTE_BLANK = {
   dateFrom: dayjs(new Date()),
   dateTo: dayjs(new Date()),
   destination: '',
-  id: nanoid(),
+  id: '',
   isFavorite: false,
   type: PointType.FLIGHT,
-  offers: getOffersByType(PointType.FLIGHT),
+  offers: [],
 };
 
 export {
@@ -77,6 +121,10 @@ export {
   ROUTE_BLANK,
   INPUT_PRICE_PATTERN,
   INVALID_DESTINATION_TEXT,
+  ButtonStateName,
+  InitData,
+  TimeLimit,
+  RequestHandlers,
   Mode,
   FilterType,
   FilterText,

@@ -2,8 +2,8 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { changeFormatToDateTime, changeFormatToUtc } from '../utils/date.js';
 import { getTargetDestination } from '../utils/filter.js';
 import { priceValidation, checkDestination } from '../utils/validation.js';
-import { getNewOfferStatus, isOptionChecked, getPointAllOffersData, getOffersId, getOfferData } from '../utils/offers.js';
-import { INVALID_DESTINATION_TEXT } from '../const.js';
+import { updateOffer, getPointAllOffersData, getOffersId } from '../utils/offers.js';
+import { DISABLED_ELEMENT, INVALID_DESTINATION_TEXT, ButtonStateName } from '../const.js';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import he from 'he';
@@ -12,7 +12,18 @@ import 'flatpickr/dist/flatpickr.min.css';
 
 dayjs.extend(isBetween);
 
-const pickButtonName = (state) => state ? 'Delete' : 'Cancel';
+const pickButtonName = (state, isDeleting) => {
+
+  if (!state) {
+    return ButtonStateName.DeleteBtn.CANCEL;
+  }
+
+  if (isDeleting) {
+    return ButtonStateName.DeleteBtn.DELETING;
+  }
+
+  return ButtonStateName.DeleteBtn.DELETE;
+};
 
 const getInputPattern = (destinations) => {
   let destinationsPattern = '';
@@ -24,23 +35,23 @@ const getInputPattern = (destinations) => {
   return destinationsPattern;
 };
 
-const checkButtonState = (state) => {
+const checkButtonState = (state, isDisabled) => {
   if (state) {
-    return `<button class="event__rollup-btn" type="button">
+    return `<button class="event__rollup-btn" type="button" ${isDisabled ? DISABLED_ELEMENT : ''}>
               <span class="visually-hidden">Open event</span>
             </button>`;
   }
   return '';
 };
 
-const getDestinations = (pointType, pointName, allDestinations) => (
+const getDestinations = (pointType, pointName, allDestinations, isDisabled) => (
   `
   <div class="event__field-group  event__field-group--destination">
     <label class="event__label  event__type-output" for="event-destination-1">
       ${pointType}
     </label>
     <input class="event__input  event__input--destination" id="event-destination-1" type="text" 
-    name="event-destination" value="${he.encode(pointName)}" list="destination-list-1" required pattern="${getInputPattern(allDestinations)}">
+    name="event-destination" value="${he.encode(pointName)}" list="destination-list-1" required pattern="${getInputPattern(allDestinations)}" ${isDisabled ? DISABLED_ELEMENT : ''}>
     <datalist id="destination-list-1">
       ${allDestinations.map( (elem) => `<option hidden value="${elem.name}"></option>`).join('')}
     </datalist>
@@ -50,53 +61,60 @@ const getDestinations = (pointType, pointName, allDestinations) => (
 
 const getPictures = (allPictures) => allPictures.map( (picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
 
-const getOffers = (pointOffersData, currentPoint) => currentPoint.offers.map( (offer) => {
+const getOfferState = (id, pointOffers) => {
 
-  const [offerId, offerStatus] = offer;
-  const [offerTitle, offerPrice] = getOfferData(pointOffersData, offerId);
+  if (pointOffers.includes(id)) {
+    return 'checked';
+  }
+
+  return '';
+};
+
+const getOffers = (pointOffersData, currentPoint, isDisabled) => pointOffersData.map( (offer) => {
+
+  const {title, price, id} = offer;
 
   return (
     `
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerTitle}-${offerId}" type="checkbox" name="event-offer-${offerTitle}" ${isOptionChecked(offerStatus)}>
-      <label class="event__offer-label" for="event-offer-${offerTitle}-${offerId}">
-        <span class="event__offer-title">${offerTitle}</span>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-${id}" type="checkbox" name="event-offer-${title}" ${getOfferState(id, currentPoint.offers)} 
+      ${isDisabled ? DISABLED_ELEMENT : ''}>
+      <label class="event__offer-label" for="event-offer-${title}-${id}">
+        <span class="event__offer-title">${title}</span>
           +€&nbsp;
-        <span class="event__offer-price">${offerPrice}</span>
+        <span class="event__offer-price">${price}</span>
       </label>
     </div>
     `
   );
 }).join('');
 
-const getOffersTypes = (allOffers, currentPointType) => allOffers.map( (elem) => {
+const getOffersTypes = (allOffers, currentPointType, isDisabled) => allOffers.map( (elem) => {
   const offerType = elem.type;
 
   return (
     `
     <div class="event__type-item">
-      <input id="event-type-${offerType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offerType}" ${currentPointType === offerType ? 'checked' : ''}>
+      <input id="event-type-${offerType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offerType}" ${isDisabled ? DISABLED_ELEMENT : ''} ${currentPointType === offerType ? 'checked' : ''}>
       <label class="event__type-label  event__type-label--${offerType}" for="event-type-${offerType}-1">${offerType}</label>
     </div>
     `
   );
 }).join('');
 
-const createNewRouteEditorTemplate = (routePoint, destinations, offersData) => {
+const createNewRouteEditorTemplate = (routePoint, destinations, offers, editState) => {
 
-  const {type, dateTo, dateFrom, basePrice} = routePoint;
+  const {type, dateTo, dateFrom, basePrice, isDisabled, isSaving, isDeleting} = routePoint;
 
-  let editState = true;
+  const offersData = offers.slice();
 
-  if (!routePoint.destination) {
-    editState = false;
+  if (!editState) {
     routePoint.destination = destinations[0].id;
-
   }
 
-  const currentDestination = destinations.filter((data) => data.id === routePoint.destination);
+  const currentDestination = destinations.find((data) => data.id === routePoint.destination);
 
-  const {description, name, pictures} = currentDestination[0];
+  const {description, name, pictures} = currentDestination;
 
   const pointOffersData = getPointAllOffersData(offersData, routePoint.type);
 
@@ -115,13 +133,13 @@ const createNewRouteEditorTemplate = (routePoint, destinations, offersData) => {
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
 
-                ${getOffersTypes(offersData, type)}
+                ${getOffersTypes(offersData, type, isDisabled)}
 
               </fieldset>
             </div>
           </div>
 
-          ${getDestinations(type, name, destinations)}
+          ${getDestinations(type, name, destinations, isDisabled)}
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
@@ -136,12 +154,12 @@ const createNewRouteEditorTemplate = (routePoint, destinations, offersData) => {
               <span class="visually-hidden">Price</span>
               €
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" required>
           </div>
-
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">${pickButtonName(editState)}</button>
-          ${checkButtonState(editState)}
+                    
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? DISABLED_ELEMENT : ''}>${isSaving ? ButtonStateName.SaveBtn.SAVING : ButtonStateName.SaveBtn.SAVE}</button>
+          <button class="event__reset-btn" type="reset" ${isDisabled ? DISABLED_ELEMENT : ''}>${pickButtonName(editState, isDeleting)}</button>
+          ${checkButtonState(editState, isDisabled)}
         </header>
         <section class="event__details">
           <section class="event__section  event__section--offers">
@@ -149,7 +167,7 @@ const createNewRouteEditorTemplate = (routePoint, destinations, offersData) => {
             
             <div class="event__available-offers">
 
-            ${getOffers(pointOffersData, routePoint)}
+            ${getOffers(pointOffersData, routePoint, isDisabled)}
 
             </div>
           </section>
@@ -177,6 +195,7 @@ export default class RouteEditorView extends AbstractStatefulView {
   #datePickerTo = null;
   #destinations = null;
   #offers = null;
+  #editState = null;
 
   constructor(routePoint, destinations, offers) {
     super();
@@ -185,12 +204,21 @@ export default class RouteEditorView extends AbstractStatefulView {
     this.#offers = offers;
 
     this._state = RouteEditorView.parseRoutePointDataToState(routePoint);
+
+    this.#setEditState(this._state.id);
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createNewRouteEditorTemplate(this._state, this.#destinations, this.#offers);
+    return createNewRouteEditorTemplate(this._state, this.#destinations, this.#offers, this.#editState);
   }
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setCancelClickHandler(this._callback.cancelClick);
+    this.setEditSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+  };
 
   removeElement = () => {
     super.removeElement();
@@ -210,26 +238,29 @@ export default class RouteEditorView extends AbstractStatefulView {
     this.updateElement(RouteEditorView.parseRoutePointDataToState(routePoint));
   };
 
-  _restoreHandlers = () => {
-    this.#setInnerHandlers();
-    this.setCancelClickHandler(this._callback.cancelClick);
-    this.setEditSubmitHandler(this._callback.formSubmit);
-    this.setDeleteClickHandler(this._callback.deleteClick);
-  };
-
   setEditSubmitHandler = (cb) => {
     this._callback.formSubmit = cb;
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
   };
 
   setCancelClickHandler = (cb) => {
-    this._callback.cancelClick = cb;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editCancelHandler);
+    if (this.#editState) {
+      this._callback.cancelClick = cb;
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editCancelHandler);
+    }
   };
 
   setDeleteClickHandler = (cb) => {
     this._callback.deleteClick = cb;
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#routeDeleteClickHandler);
+  };
+
+  #setEditState = (elem) => {
+    if (elem) {
+      this.#editState = true;
+    } else {
+      this.#editState = false;
+    }
   };
 
   #dateFromChangeHandler = ([userDataFrom]) => {
@@ -285,8 +316,9 @@ export default class RouteEditorView extends AbstractStatefulView {
 
   #priceFieldlistener = (evt) => {
     this.value = priceValidation(evt.target.value);
+
     this.updateElement( {
-      basePrice: priceValidation(evt.target.value),
+      basePrice: this.value,
     } );
   };
 
@@ -324,8 +356,9 @@ export default class RouteEditorView extends AbstractStatefulView {
   };
 
   #offersChangeHandler = (evt) => {
+    const offerId = Number([...evt.target.id].pop());
     evt.target.toggleAttribute('checked');
-    this.updateElement({ offers: getNewOfferStatus(evt.target.id, this._state.offers) });
+    this.updateElement({ offers: updateOffer(offerId, this._state.offers) });
   };
 
   #setInnerHandlers = () => {
@@ -337,11 +370,20 @@ export default class RouteEditorView extends AbstractStatefulView {
   };
 
   static parseRoutePointDataToState = (routePoint) => (
-    {...routePoint}
+    {...routePoint,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    }
   );
 
   static parseStateToRoutePoint = (state) => {
     const routPoint = {...state};
+
+    delete routPoint.isDisabled;
+    delete routPoint.isSaving;
+    delete routPoint.isDeleting;
+
     return routPoint;
   };
 }

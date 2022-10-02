@@ -1,11 +1,14 @@
 import RoutePointPresenter from './route-point-presenter.js';
 import RoutePointNewPresenter from './route-point-new-presenter.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import HeaderInfoView from '../view/header-info-view.js';
 import SortView from '../view/sort-view.js';
 import RouteListView from '../view/route-points-list-view.js';
 import NoRoutePointView from '../view/no-route-point-view.js';
+import LoadingView from '../view/loading-view.js';
 import RouteNewButtonView from '../view/route-new-button.js';
 import { filterRoutes } from '../utils/filter.js';
+import { checkInitState } from '../utils/common.js';
 import {
   remove,
   render,
@@ -15,7 +18,8 @@ import {
   FilterType,
   SortType,
   UpdateType,
-  UserAction
+  UserAction,
+  TimeLimit,
 } from '../const.js';
 import {
   sortRoutesByDate,
@@ -35,13 +39,23 @@ export default class MainPresenter {
   #noRoutesComponent = null;
   #sortComponent = null;
   #routeNewButtonComponent = null;
+  #headerComponent = null;
+  #loadingComponent = new LoadingView();
   #routeListComponent = new RouteListView();
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
   #routePointNewPresenter = null;
   #routePointPresenter = new Map();
 
   #currentFilterType = FilterType.EVERYTHING;
   #currentSortType = SortType.DAY;
+  #isLoading = true;
+
+  #initData = {
+    POINT: false,
+    DESTINATIONS: false,
+    OFFERS: false,
+  };
 
   constructor(routeModel, destinationsModel, offersModel, filterModel) {
     this.#routeModel = routeModel;
@@ -52,6 +66,8 @@ export default class MainPresenter {
     this.#routePointNewPresenter = new RoutePointNewPresenter(this.#routeListComponent.element, this.#handleViewAction);
 
     this.#routeModel.addObserver(this.#handleModelEvent);
+    this.#destinationsModel.addObserver(this.#handleModelEvent);
+    this.#offersModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
@@ -82,6 +98,12 @@ export default class MainPresenter {
 
   #renderBoard = () => {
     this.#renderRouteList();
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     this.#renderNewRouteButton();
 
     if (this.routePoints.every((point) => point.isArchive)) {
@@ -117,12 +139,17 @@ export default class MainPresenter {
     render(this.#noRoutesComponent, this.#routeListComponent.element);
   };
 
+  #renderLoading = () => {
+    render(this.#loadingComponent, this.#routeListComponent.element, RenderPosition.AFTERBEGIN);
+  };
+
   #renderRouteList = () => {
     render(this.#routeListComponent, sortElement);
   };
 
   #renderHeader = () => {
-    render(new HeaderInfoView( this.routePoints, this.#destinationsModel.destinations ), headerInfoElement, RenderPosition.AFTERBEGIN);
+    this.#headerComponent = new HeaderInfoView( this.#routeModel.routePoints, this.#destinationsModel.destinations, this.#offersModel.offers );
+    render(this.#headerComponent, headerInfoElement, RenderPosition.AFTERBEGIN);
   };
 
   #renderRoutes = () => {
@@ -156,6 +183,8 @@ export default class MainPresenter {
     this.#routePointPresenter.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
+    remove(this.#headerComponent);
 
     if (this.#noRoutesComponent) {
       remove(this.#noRoutesComponent);
@@ -171,22 +200,49 @@ export default class MainPresenter {
     this.#routePointPresenter.forEach((element) => element.resetView());
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
 
     switch (actionType) {
 
       case UserAction.UPDATE_ROUTE:
-        this.#routeModel.updateRoute(updateType, update);
+        this.#routePointPresenter.get(update.id).setSaving();
+
+        try {
+          await this.#routeModel.updateRoute(updateType, update);
+        }
+        catch(err) {
+          this.#routePointPresenter.get(update.id).setAborting();
+        }
+
         break;
 
       case UserAction.ADD_ROUTE:
-        this.#routeModel.addRoute(updateType, update);
+        this.#routePointPresenter.setSaving();
+
+        try {
+          await this.#routeModel.addRoute(updateType, update);
+        }
+        catch(err) {
+          this.#routePointPresenter.setAborting();
+        }
+
         break;
 
       case UserAction.DELETE_ROUTE:
-        this.#routeModel.deleteRoute(updateType, update);
+        this.#routePointPresenter.get(update.id).setDeleting();
+
+        try {
+          await this.#routeModel.deleteRoute(updateType, update);
+        }
+        catch(err) {
+          this.#routePointPresenter.get(update.id).setAborting();
+        }
+
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -199,13 +255,26 @@ export default class MainPresenter {
       case UpdateType.MINOR:
         this.#clearBoard();
         this.#renderRoutes();
+        this.#renderHeader();
         this.#renderSort();
         break;
 
       case UpdateType.MAJOR:
         this.#clearBoard({resetSortType: true});
         this.#renderRoutes();
+        this.#renderHeader();
         this.#renderSort();
+        break;
+
+      case UpdateType.INIT:
+        this.#initData[data] = !this.#initData[data];
+
+        if (checkInitState(this.#initData))
+        {
+          this.#isLoading = false;
+          remove(this.#loadingComponent);
+          this.#renderBoard();
+        }
         break;
     }
   };

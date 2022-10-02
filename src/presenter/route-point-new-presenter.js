@@ -44,15 +44,31 @@ export default class RoutePointNewPresenter {
     document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
+  setSaving = () => {
+    this.#routeEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  };
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#routeEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#routeEditComponent.shake(resetFormState);
+  };
+
   #handleFormSubmit = (route) => {
     this.#changeData(
       UserAction.ADD_ROUTE,
       UpdateType.MINOR,
-      {
-        ...route
-      },
+      route,
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {
