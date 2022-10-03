@@ -5,6 +5,7 @@ import HeaderInfoView from '../view/header-info-view.js';
 import SortView from '../view/sort-view.js';
 import RouteListView from '../view/route-points-list-view.js';
 import NoRoutePointView from '../view/no-route-point-view.js';
+import LoadingErrorView from '../view/loading-error-view.js';
 import LoadingView from '../view/loading-view.js';
 import RouteNewButtonView from '../view/route-new-button.js';
 import { filterRoutes } from '../utils/filter.js';
@@ -20,6 +21,7 @@ import {
   UpdateType,
   UserAction,
   TimeLimit,
+  InitDataError,
 } from '../const.js';
 import {
   sortRoutesByDate,
@@ -35,11 +37,12 @@ export default class MainPresenter {
   #destinationsModel = null;
   #offersModel = null;
   #filterModel = null;
-
   #noRoutesComponent = null;
   #sortComponent = null;
   #routeNewButtonComponent = null;
   #headerComponent = null;
+  #loadingErrorComponent = null;
+
   #loadingComponent = new LoadingView();
   #routeListComponent = new RouteListView();
   #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
@@ -105,21 +108,25 @@ export default class MainPresenter {
     }
 
     this.#renderNewRouteButton();
+    this.#renderRoutes();
 
-    if (this.routePoints.every((point) => point.isArchive)) {
-      this.#renderNoRoutes();
-      return;
+    if (this.#routePointPresenter.length > 0) {
+      this.#renderHeader();
     }
 
-    this.#renderRoutes();
-    this.#renderHeader();
     this.#renderSort();
+  };
+
+  #renderLoadingError = () => {
+    this.#loadingErrorComponent = new LoadingErrorView();
+    render(this.#loadingErrorComponent, this.#routeListComponent.element, RenderPosition.BEFOREEND);
   };
 
   #createRoutePoint = (cb) => {
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#routePointNewPresenter.init(cb, this.#destinationsModel.destinations, this.#offersModel.offers);
+    remove(this.#noRoutesComponent);
+    this.#routePointNewPresenter.init(cb, this.#destinationsModel.destinations, this.#offersModel.offers, this.#initData.POINT);
   };
 
   #renderNewRouteButton = () => {
@@ -171,7 +178,6 @@ export default class MainPresenter {
       this.#handleViewAction,
       this.#handleModeChange
     );
-
     routePointPresenter.init(routePointData);
     this.#routePointPresenter.set(currentRoutePoint.id, routePointPresenter);
   };
@@ -207,7 +213,6 @@ export default class MainPresenter {
 
       case UserAction.UPDATE_ROUTE:
         this.#routePointPresenter.get(update.id).setSaving();
-
         try {
           await this.#routeModel.updateRoute(updateType, update);
         }
@@ -218,13 +223,13 @@ export default class MainPresenter {
         break;
 
       case UserAction.ADD_ROUTE:
-        this.#routePointPresenter.setSaving();
+        this.#routePointNewPresenter.setSaving();
 
         try {
           await this.#routeModel.addRoute(updateType, update);
         }
         catch(err) {
-          this.#routePointPresenter.setAborting();
+          this.#routePointNewPresenter.setAborting();
         }
 
         break;
@@ -262,11 +267,28 @@ export default class MainPresenter {
       case UpdateType.MAJOR:
         this.#clearBoard({resetSortType: true});
         this.#renderRoutes();
-        this.#renderHeader();
+        if (this.#routePointPresenter.length > 0) {
+          this.#renderHeader();
+        }
         this.#renderSort();
         break;
 
       case UpdateType.INIT:
+
+        if (data === InitDataError.DESTINATIONS || data === InitDataError.OFFERS) {
+          this.#isLoading = false;
+          remove(this.#loadingComponent);
+          this.#renderLoadingError();
+          return;
+        }
+
+        if (data === InitDataError.POINT) {
+          this.#isLoading = false;
+          remove(this.#loadingComponent);
+          this.#renderNewRouteButton();
+          this.#renderNoRoutes();
+        }
+
         this.#initData[data] = !this.#initData[data];
 
         if (checkInitState(this.#initData))
@@ -286,6 +308,7 @@ export default class MainPresenter {
     this.#currentSortType = sort;
     this.#clearBoard();
     this.#renderRoutes();
+    this.#renderHeader();
     this.#renderSort();
   };
 

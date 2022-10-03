@@ -5,9 +5,12 @@ import DestinationModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
 import FilterModel from './model/filter-model.js';
 import RoutesApiService from './routes-api-service.js';
-import { RequestHandlers } from './const.js';
+import { nanoid } from 'nanoid';
 
-const routeApiService = new RoutesApiService(RequestHandlers.RequestData.END_POINT, RequestHandlers.RequestData.AUTHORIZATION);
+const AUTHORIZATION = `Basic ${nanoid()}`;
+const END_POINT = 'https://18.ecmascript.pages.academy/big-trip';
+
+const routeApiService = new RoutesApiService(END_POINT, AUTHORIZATION);
 
 const routeModel = new RoutePointModel(routeApiService);
 const destinationsModel = new DestinationModel(routeApiService);

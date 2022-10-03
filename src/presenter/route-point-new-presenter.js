@@ -9,6 +9,7 @@ export default class RoutePointNewPresenter {
   #changeData = null;
   #routeEditComponent = null;
   #destroyCallback = null;
+  #routeBlank = ROUTE_BLANK;
 
   constructor(routeListContainer, changeData) {
     this.#routeListContainer = routeListContainer;
@@ -22,7 +23,7 @@ export default class RoutePointNewPresenter {
       return;
     }
 
-    this.#routeEditComponent = new RouteEditorView(ROUTE_BLANK, destinations, offers);
+    this.#routeEditComponent = new RouteEditorView(this.#routeBlank, destinations, offers);
     this.#routeEditComponent.setEditSubmitHandler(this.#handleFormSubmit);
     this.#routeEditComponent.setDeleteClickHandler(this.#handleDeleteClick);
 

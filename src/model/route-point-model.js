@@ -1,5 +1,5 @@
 import Observable from '../framework/observable.js';
-import { UpdateType, InitData } from '../const.js';
+import { UpdateType, InitData, InitDataError } from '../const.js';
 import dayjs from 'dayjs';
 
 export default class RoutePointModel extends Observable {
@@ -20,13 +20,13 @@ export default class RoutePointModel extends Observable {
     {
       const routePoints = await this.#routeApiService.routePoints;
       this.#routePoints = routePoints.map(this.#adaptToClient);
+      this._notify(UpdateType.INIT, InitData.POINT);
     }
     catch (err)
     {
       this.#routePoints = [];
+      this._notify(UpdateType.INIT, InitDataError.POINT);
     }
-
-    this._notify(UpdateType.INIT, InitData.POINT);
   };
 
   updateRoute = async (updateType, update) => {

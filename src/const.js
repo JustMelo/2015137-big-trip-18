@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { nanoid } from 'nanoid';
 
 const INVALID_DESTINATION_TEXT = 'Please select a destination from the following list';
 
@@ -29,13 +28,7 @@ const RequestHandlers = {
     DESTINATIONS: '/destinations',
     OFFERS: '/offers',
   },
-
-  RequestData: {
-    AUTHORIZATION: `Basic ${nanoid()}`,
-    END_POINT: 'https://18.ecmascript.pages.academy/big-trip',
-  },
 };
-
 
 const UserAction = {
   UPDATE_ROUTE: 'UPDATE_ROUTE',
@@ -54,6 +47,12 @@ const InitData = {
   POINT: 'POINT',
   DESTINATIONS: 'DESTINATIONS',
   OFFERS: 'OFFERS',
+};
+
+const InitDataError = {
+  POINT: 'POINT_ERROR',
+  DESTINATIONS: 'DESTINATIONS_ERROR',
+  OFFERS: 'OFFERS_ERROR',
 };
 
 const ButtonStateName = {
@@ -122,6 +121,7 @@ export {
   INPUT_PRICE_PATTERN,
   INVALID_DESTINATION_TEXT,
   ButtonStateName,
+  InitDataError,
   InitData,
   TimeLimit,
   RequestHandlers,

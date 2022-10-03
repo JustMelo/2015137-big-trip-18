@@ -35,7 +35,7 @@ export default class RoutesApiService extends ApiService {
       url: `${RequestHandlers.Type.POINTS_SEND}`,
       method: RequestHandlers.Method.POST,
       body: JSON.stringify(this.#adaptRouteToServer(route)),
-      headers: new Headers({'Content-Type': 'application/json'})
+      headers: new Headers({'Content-Type': 'application/json'}),
     });
 
     const parsedResponse = await ApiService.parseResponse(response);

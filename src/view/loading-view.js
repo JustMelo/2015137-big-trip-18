@@ -7,6 +7,7 @@ const createNoRoutesTemplate = () => (
 );
 
 export default class LoadingView extends AbstractView {
+
   get template() {
     return createNoRoutesTemplate();
   }

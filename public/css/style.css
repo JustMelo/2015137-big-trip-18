@@ -399,6 +399,16 @@ main {
   color: #b4b4b4;
   cursor: default; }
 
+.loading-error__no-data {
+  position: absolute;
+  font-size: 150%;
+  font-weight: 600;
+  color: #000000;
+  top: 30%;
+  left: 30%;
+  height: 8px;
+}
+
 .event {
   display: -ms-flexbox;
   display: flex;

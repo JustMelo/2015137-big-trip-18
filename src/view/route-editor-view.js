@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import he from 'he';
 import flatpickr from 'flatpickr';
-import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/themes/material_blue.css';
 
 dayjs.extend(isBetween);
 
@@ -289,6 +289,11 @@ export default class RouteEditorView extends AbstractStatefulView {
         defaultDate: changeFormatToDateTime(dateFrom),
         onChange: this.#dateFromChangeHandler,
         minDate: 'today',
+        disable:
+        [{
+          from: '',
+          to: 'today'
+        }],
       },
     );
 
@@ -301,6 +306,11 @@ export default class RouteEditorView extends AbstractStatefulView {
         defaultDate: changeFormatToDateTime(dateTo),
         onChange: this.#dateToChangeHandler,
         minDate: this.#datePickerFrom.selectedDates[0],
+        disable:
+        [{
+          from: '',
+          to: 'minDate'
+        }],
       },
     );
 
