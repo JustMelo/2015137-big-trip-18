@@ -41,17 +41,24 @@ const getStartDate = (points) => {
   return `${startDate} - ${endDate}`;
 };
 
-const getRoutePointsCount = (allDestinations) => {
-  const firstPointName = allDestinations[0].name;
-  const lastPointName = allDestinations[allDestinations.length - 1].name;
+const getRoutePointsCount = (points, destinations) => {
 
-  if (allDestinations.length === DESTINATIONS_MID) {
+  const selectedDestinationPoints = points.map( (point) => destinations.find( (elem) => point.destination === elem.id));
+
+  const firstPointName = selectedDestinationPoints[0].name;
+  const lastPointName = selectedDestinationPoints[selectedDestinationPoints.length - 1].name;
+
+  if (selectedDestinationPoints.length === DESTINATIONS_MID) {
     return (`${firstPointName} - ${lastPointName}`);
   }
 
-  if (allDestinations.length === DESTINATIONS_MAX) {
-    const middlePointName = allDestinations[1].name;
+  if (selectedDestinationPoints.length === DESTINATIONS_MAX) {
+    const middlePointName = selectedDestinationPoints[1].name;
     return (`${firstPointName} - ${middlePointName} - ${lastPointName}`);
+  }
+
+  if (selectedDestinationPoints.length === 1) {
+    return (`${firstPointName}`);
   }
 
   return (`${firstPointName} - ... - ${lastPointName}`);
@@ -65,7 +72,7 @@ const createNewHeaderInfoTemplate = (routePoints ,destinations, offers) => {
   return (
     `<section class="trip-main__trip-info trip-info">
       <div class="trip-info__main">
-        <h1 class="trip-info__title">${getRoutePointsCount(allDestinations)}</h1>
+        <h1 class="trip-info__title">${getRoutePointsCount(points, allDestinations)}</h1>
         <p class="trip-info__dates">${getStartDate(points)}</p>
       </div>
       <p class="trip-info__cost">
@@ -92,5 +99,4 @@ export default class HeaderInfoView extends AbstractView {
   get template() {
     return createNewHeaderInfoTemplate(this.#routePoints, this.#destinations, this.#offers);
   }
-
 }

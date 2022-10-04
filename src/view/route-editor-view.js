@@ -362,7 +362,7 @@ export default class RouteEditorView extends AbstractStatefulView {
       return;
     }
     this.element.querySelector('.event__input--destination').setCustomValidity('');
-    this.updateElement( { destination: getTargetDestination(evt.target.value, this.#destinations)[0].id });
+    this.updateElement({ destination: getTargetDestination(evt.target.value, this.#destinations).id });
   };
 
   #offersChangeHandler = (evt) => {

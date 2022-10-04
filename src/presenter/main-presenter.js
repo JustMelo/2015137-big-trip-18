@@ -42,12 +42,12 @@ export default class MainPresenter {
   #routeNewButtonComponent = null;
   #headerComponent = null;
   #loadingErrorComponent = null;
+  #routePointNewPresenter = null;
 
   #loadingComponent = new LoadingView();
   #routeListComponent = new RouteListView();
   #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
-  #routePointNewPresenter = null;
   #routePointPresenter = new Map();
 
   #currentFilterType = FilterType.EVERYTHING;
@@ -109,24 +109,13 @@ export default class MainPresenter {
 
     this.#renderNewRouteButton();
     this.#renderRoutes();
-
-    if (this.#routePointPresenter.length > 0) {
-      this.#renderHeader();
-    }
-
+    this.#renderHeader();
     this.#renderSort();
   };
 
   #renderLoadingError = () => {
     this.#loadingErrorComponent = new LoadingErrorView();
     render(this.#loadingErrorComponent, this.#routeListComponent.element, RenderPosition.BEFOREEND);
-  };
-
-  #createRoutePoint = (cb) => {
-    this.#currentSortType = SortType.DAY;
-    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    remove(this.#noRoutesComponent);
-    this.#routePointNewPresenter.init(cb, this.#destinationsModel.destinations, this.#offersModel.offers, this.#initData.POINT);
   };
 
   #renderNewRouteButton = () => {
@@ -136,9 +125,11 @@ export default class MainPresenter {
   };
 
   #renderSort = () => {
-    this.#sortComponent = new SortView(this.#currentSortType);
-    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
-    render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+    if (this.#initData.POINT || (this.#routeModel.routePoints).length > 0) {
+      this.#sortComponent = new SortView(this.#currentSortType);
+      this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+      render(this.#sortComponent, sortElement, RenderPosition.AFTERBEGIN);
+    }
   };
 
   #renderNoRoutes = () => {
@@ -155,8 +146,10 @@ export default class MainPresenter {
   };
 
   #renderHeader = () => {
-    this.#headerComponent = new HeaderInfoView( this.#routeModel.routePoints, this.#destinationsModel.destinations, this.#offersModel.offers );
-    render(this.#headerComponent, headerInfoElement, RenderPosition.AFTERBEGIN);
+    if (this.#initData.POINT || (this.#routeModel.routePoints).length > 0) {
+      this.#headerComponent = new HeaderInfoView( this.#routeModel.routePoints, this.#destinationsModel.destinations, this.#offersModel.offers );
+      render(this.#headerComponent, headerInfoElement, RenderPosition.AFTERBEGIN);
+    }
   };
 
   #renderRoutes = () => {
@@ -190,7 +183,10 @@ export default class MainPresenter {
 
     remove(this.#sortComponent);
     remove(this.#loadingComponent);
-    remove(this.#headerComponent);
+
+    if (this.#headerComponent) {
+      remove(this.#headerComponent);
+    }
 
     if (this.#noRoutesComponent) {
       remove(this.#noRoutesComponent);
@@ -199,6 +195,13 @@ export default class MainPresenter {
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
     }
+  };
+
+  #createRoutePoint = (cb) => {
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    remove(this.#noRoutesComponent);
+    this.#routePointNewPresenter.init(cb, this.#destinationsModel.destinations, this.#offersModel.offers);
   };
 
   #handleModeChange = () => {
@@ -240,10 +243,12 @@ export default class MainPresenter {
         try {
           await this.#routeModel.deleteRoute(updateType, update);
         }
-        catch(err) {
-          this.#routePointPresenter.get(update.id).setAborting();
-        }
 
+        catch(err) {
+          if (this.#routePointPresenter.length > 0) {
+            this.#routePointPresenter.get(update.id).setAborting();
+          }
+        }
         break;
     }
 
@@ -267,9 +272,7 @@ export default class MainPresenter {
       case UpdateType.MAJOR:
         this.#clearBoard({resetSortType: true});
         this.#renderRoutes();
-        if (this.#routePointPresenter.length > 0) {
-          this.#renderHeader();
-        }
+        this.#renderHeader();
         this.#renderSort();
         break;
 
