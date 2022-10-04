@@ -12,6 +12,8 @@ import 'flatpickr/dist/themes/material_blue.css';
 
 dayjs.extend(isBetween);
 
+const getPictures = (allPictures) => allPictures.map( (picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
+
 const pickButtonName = (state, isDeleting) => {
 
   if (!state) {
@@ -44,22 +46,20 @@ const checkButtonState = (state, isDisabled) => {
   return '';
 };
 
-const getDestinations = (pointType, pointName, allDestinations, isDisabled) => (
+const getDestinations = (pointType, pointName, destinations, isDisabled) => (
   `
   <div class="event__field-group  event__field-group--destination">
     <label class="event__label  event__type-output" for="event-destination-1">
       ${pointType}
     </label>
     <input class="event__input  event__input--destination" id="event-destination-1" type="text" 
-    name="event-destination" value="${he.encode(pointName)}" list="destination-list-1" required pattern="${getInputPattern(allDestinations)}" ${isDisabled ? DISABLED_ELEMENT : ''}>
+    name="event-destination" value="${he.encode(pointName)}" list="destination-list-1" required pattern="${getInputPattern(destinations)}" ${isDisabled ? DISABLED_ELEMENT : ''}>
     <datalist id="destination-list-1">
-      ${allDestinations.map( (elem) => `<option hidden value="${elem.name}"></option>`).join('')}
+      ${destinations.map( (elem) => `<option value="${elem.name}"></option>`).join('')}
     </datalist>
   </div>
   `
 );
-
-const getPictures = (allPictures) => allPictures.map( (picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('');
 
 const getOfferState = (id, pointOffers) => {
 
@@ -86,8 +86,7 @@ const getOffers = (pointOffersData, currentPoint, isDisabled) => pointOffersData
       </label>
     </div>
     `
-  );
-}).join('');
+  ); }).join('');
 
 const getOffersTypes = (allOffers, currentPointType, isDisabled) => allOffers.map( (elem) => {
   const offerType = elem.type;
@@ -99,13 +98,10 @@ const getOffersTypes = (allOffers, currentPointType, isDisabled) => allOffers.ma
       <label class="event__type-label  event__type-label--${offerType}" for="event-type-${offerType}-1">${offerType}</label>
     </div>
     `
-  );
-}).join('');
+  ); }).join('');
 
 const createNewRouteEditorTemplate = (routePoint, destinations, offers, editState) => {
-
   const {type, dateTo, dateFrom, basePrice, isDisabled, isSaving, isDeleting} = routePoint;
-
   const offersData = offers.slice();
 
   if (!editState) {
@@ -113,7 +109,6 @@ const createNewRouteEditorTemplate = (routePoint, destinations, offers, editStat
   }
 
   const currentDestination = destinations.find((data) => data.id === routePoint.destination);
-
   const {description, name, pictures} = currentDestination;
 
   const pointOffersData = getPointAllOffersData(offersData, routePoint.type);
@@ -205,7 +200,7 @@ export default class RouteEditorView extends AbstractStatefulView {
 
     this._state = RouteEditorView.parseRoutePointDataToState(routePoint);
 
-    this.#setEditState(this._state.id);
+    this.#setEditState(this._state.destination);
     this.#setInnerHandlers();
   }
 
@@ -361,6 +356,7 @@ export default class RouteEditorView extends AbstractStatefulView {
       this.value = evt.target.defaultValue;
       return;
     }
+    this.#editState = true;
     this.element.querySelector('.event__input--destination').setCustomValidity('');
     this.updateElement({ destination: getTargetDestination(evt.target.value, this.#destinations).id });
   };
@@ -373,7 +369,7 @@ export default class RouteEditorView extends AbstractStatefulView {
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('blur', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#priceFieldlistener);
     this.#setDatePicker();
