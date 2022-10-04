@@ -104,10 +104,6 @@ const createNewRouteEditorTemplate = (routePoint, destinations, offers, editStat
   const {type, dateTo, dateFrom, basePrice, isDisabled, isSaving, isDeleting} = routePoint;
   const offersData = offers.slice();
 
-  if (!editState) {
-    routePoint.destination = destinations[0].id;
-  }
-
   const currentDestination = destinations.find((data) => data.id === routePoint.destination);
   const {description, name, pictures} = currentDestination;
 
@@ -201,19 +197,17 @@ export default class RouteEditorView extends AbstractStatefulView {
     this._state = RouteEditorView.parseRoutePointDataToState(routePoint);
 
     this.#setEditState(this._state.destination);
+
+    if (!this._state.destination) {
+      this._state.destination = destinations[0].id;
+    }
+
     this.#setInnerHandlers();
   }
 
   get template() {
     return createNewRouteEditorTemplate(this._state, this.#destinations, this.#offers, this.#editState);
   }
-
-  _restoreHandlers = () => {
-    this.#setInnerHandlers();
-    this.setCancelClickHandler(this._callback.cancelClick);
-    this.setEditSubmitHandler(this._callback.formSubmit);
-    this.setDeleteClickHandler(this._callback.deleteClick);
-  };
 
   removeElement = () => {
     super.removeElement();
@@ -231,6 +225,14 @@ export default class RouteEditorView extends AbstractStatefulView {
 
   reset = (routePoint) => {
     this.updateElement(RouteEditorView.parseRoutePointDataToState(routePoint));
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceFieldlistener);
+    this.#setDatePicker();
   };
 
   setEditSubmitHandler = (cb) => {
@@ -256,6 +258,13 @@ export default class RouteEditorView extends AbstractStatefulView {
     } else {
       this.#editState = false;
     }
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setCancelClickHandler(this._callback.cancelClick);
+    this.setEditSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   };
 
   #dateFromChangeHandler = ([userDataFrom]) => {
@@ -356,7 +365,6 @@ export default class RouteEditorView extends AbstractStatefulView {
       this.value = evt.target.defaultValue;
       return;
     }
-    this.#editState = true;
     this.element.querySelector('.event__input--destination').setCustomValidity('');
     this.updateElement({ destination: getTargetDestination(evt.target.value, this.#destinations).id });
   };
@@ -365,14 +373,6 @@ export default class RouteEditorView extends AbstractStatefulView {
     const offerId = Number([...evt.target.id].pop());
     evt.target.toggleAttribute('checked');
     this.updateElement({ offers: updateOffer(offerId, this._state.offers) });
-  };
-
-  #setInnerHandlers = () => {
-    this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
-    this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
-    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceFieldlistener);
-    this.#setDatePicker();
   };
 
   static parseRoutePointDataToState = (routePoint) => (

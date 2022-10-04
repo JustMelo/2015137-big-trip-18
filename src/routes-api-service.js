@@ -59,7 +59,6 @@ export default class RoutesApiService extends ApiService {
       'date_from': dayjs(route.dateFrom).toISOString(),
       'date_to': dayjs(route.dateTo).toISOString(),
       'is_favorite': route.isFavorite,
-      'offers': route.offers.filter( (elem) => typeof(elem) === 'number'),
     };
 
     delete adaptedRoute.basePrice;

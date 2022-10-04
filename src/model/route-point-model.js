@@ -62,7 +62,7 @@ export default class RoutePointModel extends Observable {
       this.#routePoints =
       [newRoute, ...this.#routePoints];
 
-      this._notify(updateType, update);
+      this._notify(updateType, newRoute);
     }
     catch(err) {
       throw new Error('Can\'t add route');
