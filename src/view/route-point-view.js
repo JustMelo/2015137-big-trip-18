@@ -12,8 +12,7 @@ const getOffers = (routePoint, offersData) => routePoint.offers.map( (offer) => 
 
   const pointOffersData = getPointAllOffersData(offersData, routePoint.type);
 
-  const [offerId] = offer;
-  const [offerTitle, offerPrice] = getOfferData(pointOffersData, offerId);
+  const [offerTitle, offerPrice] = getOfferData(pointOffersData, offer);
 
   return (
     `<li class="event__offer">
@@ -36,7 +35,7 @@ const setIsFavoriteButton = (isFavorite) => {
 const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
 
   const {basePrice, type, dateFrom, dateTo, isFavorite} = routePoint;
-  const destinationPoint = destinations.filter((data) => data.id === routePoint.destination);
+  const destinationPoint = destinations.find((data) => data.id === routePoint.destination);
 
   return (
     `<li class="trip-events__item">
@@ -45,7 +44,7 @@ const createNewRoutePointTemplate = (routePoint, destinations, offersData) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${destinationPoint[0].name}</h3>
+        <h3 class="event__title">${type} ${destinationPoint.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${changeFormatToFullDateTime(dateFrom)}">${changeDateToHoursMinutes(dateFrom)}</time>

@@ -9,6 +9,7 @@ export default class RoutePointNewPresenter {
   #changeData = null;
   #routeEditComponent = null;
   #destroyCallback = null;
+  #routeBlank = ROUTE_BLANK;
 
   constructor(routeListContainer, changeData) {
     this.#routeListContainer = routeListContainer;
@@ -22,7 +23,7 @@ export default class RoutePointNewPresenter {
       return;
     }
 
-    this.#routeEditComponent = new RouteEditorView(ROUTE_BLANK, destinations, offers);
+    this.#routeEditComponent = new RouteEditorView(this.#routeBlank, destinations, offers);
     this.#routeEditComponent.setEditSubmitHandler(this.#handleFormSubmit);
     this.#routeEditComponent.setDeleteClickHandler(this.#handleDeleteClick);
 
@@ -44,15 +45,31 @@ export default class RoutePointNewPresenter {
     document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
+  setSaving = () => {
+    this.#routeEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  };
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#routeEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#routeEditComponent.shake(resetFormState);
+  };
+
   #handleFormSubmit = (route) => {
     this.#changeData(
       UserAction.ADD_ROUTE,
       UpdateType.MINOR,
-      {
-        ...route
-      },
+      route,
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {

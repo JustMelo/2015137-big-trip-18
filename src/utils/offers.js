@@ -1,35 +1,29 @@
-const getNewOfferStatus = (target, stateOffers) => {
-  const offerId = Number([...target].pop());
-  const offersList = stateOffers.slice();
 
-  const newStateOffers = [];
+const updateOffer = (target, stateOffers) => {
 
-  offersList.forEach( (offer) => {
+  const index = stateOffers.findIndex( (elem) => elem === target);
 
-    if (offer[0] === offerId) {
-      offer = [offer[0], !offer[1]];
-    }
+  if (stateOffers.includes(target)) {
+    stateOffers.splice(index, 1);
 
-    newStateOffers.push(offer);
-  });
+    return stateOffers;
+  }
 
-  return newStateOffers;
+  stateOffers.push(target);
+
+  return stateOffers;
 };
 
-const isOptionChecked = (state) => state ? 'checked' : '';
+const getOfferData = (offersData, offerId) => {
+  const offerData = offersData.find( (data) => data.id === offerId);
 
-const getOfferData = (OffersData, offerId) => {
-  const offerData = OffersData.filter( (data) =>
-    data.id === offerId
-  );
-
-  return [offerData[0].title, offerData[0].price];
+  return [offerData.title, offerData.price];
 };
 
 const getPointAllOffersData = (offersData, pointType) => {
 
-  let pointData = offersData.filter( (data) => data.type === pointType);
-  pointData = pointData[0].offers;
+  let pointData = offersData.find( (data) => data.type === pointType);
+  pointData = pointData.offers;
 
   return pointData;
 };
@@ -45,8 +39,7 @@ const getOffersId = (offersData, pointType) => {
 
 export {
   getPointAllOffersData,
-  getNewOfferStatus,
-  isOptionChecked,
+  updateOffer,
   getOfferData,
   getOffersId
 };

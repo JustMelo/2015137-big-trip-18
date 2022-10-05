@@ -47,7 +47,8 @@ export default class RoutePointPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#pointEditorComponent, prevEditorComponent);
+      replace(this.#routePointComponent, prevEditorComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevRoutePointComponent);
@@ -59,6 +60,46 @@ export default class RoutePointPresenter {
       this.#pointEditorComponent.reset(this.#routePointData);
       this.#closeEditor();
     }
+  };
+
+  setSaving = () => {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditorComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  };
+
+  setDeleting = () => {
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditorComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  };
+
+  setAborting = () => {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#routePointComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#pointEditorComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditorComponent.shake(resetFormState);
+  };
+
+  destroy = () => {
+    remove(this.#routePointComponent);
+    remove(this.#pointEditorComponent);
   };
 
   #openEditor = () => {
@@ -101,7 +142,6 @@ export default class RoutePointPresenter {
       UpdateType.MINOR,
       routePoint,
     );
-    this.#closeEditor();
   };
 
   #handleCancleClick = () => {
@@ -116,10 +156,5 @@ export default class RoutePointPresenter {
       UpdateType.MINOR,
       routePoint,
     );
-  };
-
-  destroy = () => {
-    remove(this.#routePointComponent);
-    remove(this.#pointEditorComponent);
   };
 }

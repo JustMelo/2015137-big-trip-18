@@ -51,7 +51,7 @@ const filterRoutes = (filterType, routesList) => {
   }
 };
 
-const getTargetDestination = (target, data) => data.filter((elem) => elem.name === target);
+const getTargetDestination = (target, data) => data.find((elem) => elem.name === target);
 
 export {
   getTargetDestination,
