@@ -43,14 +43,10 @@ export default class RoutesApiService extends ApiService {
     return parsedResponse;
   };
 
-  deleteRoute = async (route) => {
-    const response = await this._load({
-      url: `${RequestHandlers.Type.POINTS_SEND}${route.id}`,
-      method: RequestHandlers.Method.DELETE,
-    });
-
-    return response;
-  };
+  deleteRoute = async (route) => await this._load({
+    url: `${RequestHandlers.Type.POINTS_SEND}${route.id}`,
+    method: RequestHandlers.Method.DELETE,
+  });
 
   #adaptRouteToServer = (route) => {
 

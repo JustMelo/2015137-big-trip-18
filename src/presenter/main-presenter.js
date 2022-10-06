@@ -3,11 +3,11 @@ import RoutePointNewPresenter from './route-point-new-presenter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import HeaderInfoView from '../view/header-info-view.js';
 import SortView from '../view/sort-view.js';
-import RouteListView from '../view/route-points-list-view.js';
+import RouteListView from '../view/route-list-view.js';
 import NoRoutePointView from '../view/no-route-point-view.js';
 import LoadingErrorView from '../view/loading-error-view.js';
 import LoadingView from '../view/loading-view.js';
-import RouteNewButtonView from '../view/route-new-button.js';
+import RouteNewButtonView from '../view/route-new-button-view.js';
 import { filterRoutes } from '../utils/filter.js';
 import { checkInitState } from '../utils/common.js';
 import {
